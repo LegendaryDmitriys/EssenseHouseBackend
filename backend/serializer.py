@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import House, ConstructionTechnology, Filter, HouseCategory, HouseImage
+from .models import House, ConstructionTechnology, Filter, HouseCategory, HouseImage, HouseInteriorImage, \
+    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -8,28 +9,58 @@ class ConstructionTechnologySerializer(serializers.ModelSerializer):
         fields = ['id','name']
 
 class HouseCategorySerializer(serializers.ModelSerializer):
+    random_image_url = serializers.SerializerMethodField()
     class Meta:
         model = HouseCategory
-        fields = ['id', 'name', 'slug', 'short_description' , 'long_description']
+        fields = ['id', 'name', 'slug', 'short_description' , 'long_description', 'random_image_url']
+
+    def get_random_image_url(self, obj):
+        return obj.get_random_image()
 
 class HouseImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseImage
         fields = ['id', 'image']
 
+class HouseInteriorImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HouseInteriorImage
+        fields = ['id', 'image']
+
+
+class HouseFacadeImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HouseFacadeImage
+        fields = ['id', 'image']
+
+
+class HouseLayoutImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HouseLayoutImage
+        fields = ['id', 'image']
+
+
+class FinishingOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinishingOption
+        fields = ['id', 'title', 'description', 'image', 'price_per_sqm']
+
+
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ['id', 'file', 'title', 'size']
+
 
 class HouseSerializer(serializers.ModelSerializer):
-    # construction_technology = serializers.PrimaryKeyRelatedField(
-    #     queryset=ConstructionTechnology.objects.all(),
-    #     required=False,
-    # )
-    # category = serializers.PrimaryKeyRelatedField(
-    #     queryset=HouseCategory.objects.all(),
-    #     required=False,
-    # )
     images = HouseImageSerializer(many=True)
+    interior_images = HouseInteriorImageSerializer(many=True)
+    facade_images = HouseFacadeImageSerializer(many=True)
+    layout_images = HouseLayoutImageSerializer(many=True)
     construction_technology = ConstructionTechnologySerializer(read_only=True)
     category = HouseCategorySerializer(read_only=True)
+    finishing_options = FinishingOptionSerializer(many=True, read_only=True)
+    documents = DocumentSerializer(many=True, read_only=True)
 
     class Meta:
         model = House
@@ -64,4 +95,20 @@ class FilterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Filter
         fields = '__all__'
+
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    file_name = serializers.SerializerMethodField()
+    file_size = serializers.SerializerMethodField()
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'review', 'date', 'rating', 'file', 'file_name', 'file_size']
+
+    def get_file_name(self, obj):
+        return obj.get_file_name()
+
+    def get_file_size(self, obj):
+        return obj.get_file_size()
+
 

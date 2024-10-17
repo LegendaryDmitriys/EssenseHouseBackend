@@ -2,8 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.views import APIView
 
-from .models import House, ConstructionTechnology, Filter, HouseCategory
-from .serializer import HouseSerializer, ConstructionTechnologySerializer, FilterSerializer, HouseCategorySerializer
+from .models import House, ConstructionTechnology, Filter, HouseCategory, FinishingOption, Document, Review
+from .serializer import HouseSerializer, ConstructionTechnologySerializer, FilterSerializer, HouseCategorySerializer, \
+    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -118,3 +119,34 @@ class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         category_slug = self.kwargs['slug']
         category = get_object_or_404(HouseCategory, slug=category_slug)
         return HouseCategory.objects.filter(slug=category_slug)
+
+
+
+class FinishingOptionListView(generics.ListCreateAPIView):
+    queryset = FinishingOption.objects.all()
+    serializer_class = FinishingOptionSerializer
+
+
+class FinishingOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = FinishingOption.objects.all()
+    serializer_class = FinishingOptionSerializer
+
+
+class DocumentListView(generics.ListCreateAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+
+class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+
+class ReviewsListView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+
+class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
