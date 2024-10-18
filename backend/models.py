@@ -1,10 +1,14 @@
 import os
 
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
 import random
 from django.db.models import Count
 from django.utils import timezone
+import requests
+from django.core.exceptions import ValidationError
+
 
 class HouseCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -158,3 +162,56 @@ class Review(models.Model):
 
     def get_file_size(self):
         return round(self.file.size / (1024 * 1024), 2) if self.file else None
+
+
+class Order(models.Model):
+    phone_validator = RegexValidator(
+        regex=r'^\+?1?\d{9,15}$',
+        message="Номер телефона должен содержать от 9 до 15 цифр, включая код страны."
+    )
+
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(blank=True)
+    house = models.ForeignKey('House', on_delete=models.CASCADE)
+    finishing_option = models.ForeignKey('FinishingOption', on_delete=models.CASCADE)
+    construction_place = models.CharField(max_length=255)
+    message = models.TextField()
+    data_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Заказ от {self.name} на дом {self.house.title}"
+
+    def clean(self):
+        super().clean()
+        geocode_url = 'https://nominatim.openstreetmap.org/search'
+        params = {'q': self.construction_place, 'format': 'json'}
+
+        print(f"Запрос на очистку места строительства: {self.construction_place}")  # Логируем запрос
+
+        try:
+            response = requests.get(geocode_url, params=params, headers={'User-Agent': 'DjangoApp'})
+            if response.status_code == 200:
+                geo_data = response.json()
+                if geo_data:
+                    address = geo_data[0].get('address', {})
+                    region = address.get('state', '')
+                    county = address.get('county', '')
+
+                    valid = False
+                    if region and 'новгородская область' in region.lower():
+                        valid = True
+                    if county and 'новгородский район' in county.lower():
+                        valid = True
+
+                    if not valid:
+                        print("Место строительства должно быть в Новгородской области или Новгородском районе.")  # Логируем предупреждение
+                        raise ValidationError("Место строительства должно быть в Новгородской области или Новгородском районе.")
+                else:
+                    print("Место строительства не найдено через OpenStreetMap.")  # Логируем ошибку
+                    raise ValidationError("Место строительства не найдено через OpenStreetMap.")
+            else:
+                print(f"Ошибка при запросе к OpenStreetMap: {response.status_code}")  # Логируем ошибку
+                raise ValidationError(f"Ошибка при запросе к OpenStreetMap: {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Ошибка соединения с OpenStreetMap: {e}")  # Логируем ошибку соединения

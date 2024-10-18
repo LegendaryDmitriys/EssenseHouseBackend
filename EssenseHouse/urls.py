@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from backend.views import HouseListView, HouseDetailView, ConstructionTechnologyListView, \
     ConstructionTechnologyDetailView, FilterListView, FilterDetailView, HouseCategoryListView, HouseCategoryDetailView, \
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
-    ReviewsDetailView
+    ReviewsDetailView, OrderListView, OrderDetailView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -23,4 +23,6 @@ urlpatterns = [
     path('house/documents/<int:pk>/', DocumentDetailView.as_view(), name='document_detail'),
     path('reviews/', ReviewsListView.as_view(), name='review_list'),
     path('reviews/<int:pk>/', ReviewsDetailView.as_view(), name='review_detail'),
+    path('orders/', OrderListView.as_view(), name='order_list'),
+    path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
