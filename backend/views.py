@@ -2,9 +2,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.views import APIView
 
-from .models import House, ConstructionTechnology, Filter, HouseCategory, FinishingOption, Document, Review, Order
+from .models import House, ConstructionTechnology, Filter, HouseCategory, FinishingOption, Document, Review, Order, \
+    UserQuestion
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, FilterSerializer, HouseCategorySerializer, \
-    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer
+    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, UserQuestionSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -166,3 +167,19 @@ class OrderListView(generics.ListCreateAPIView):
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+
+class UserQuestionListView(generics.ListCreateAPIView):
+    queryset = UserQuestion.objects.all()
+    serializer_class = UserQuestionSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserQuestion.objects.all()
+    serializer_class = UserQuestionSerializer
