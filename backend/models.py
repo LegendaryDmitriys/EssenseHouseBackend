@@ -188,3 +188,24 @@ class UserQuestion(models.Model):
 
     def __str__(self):
         return f"Вопрос от {self.name} по дому {self.house.title}"
+
+
+class PurchasedHouse(models.Model):
+    STATUS_CHOICES = [
+        ('in_progress', 'В процессе'),
+        ('completed', 'Построен'),
+        ('not_started', 'Не начато'),
+    ]
+
+    house = models.ForeignKey(House, on_delete=models.CASCADE, verbose_name="Купленный дом")
+    purchase_date = models.DateField(verbose_name="Дата покупки")
+    buyer_name = models.CharField(max_length=255, verbose_name="Имя покупателя")
+    buyer_phone = models.CharField(max_length=20, verbose_name="Номер телефона покупателя")
+    buyer_email = models.EmailField(max_length=255, verbose_name="Почта покупателя")
+    construction_status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Статус строительства")
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Широта")
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Долгота")
+
+
+    def __str__(self):
+        return f"{self.house.title} - {self.buyer_name}"

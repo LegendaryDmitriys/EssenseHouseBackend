@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from django.contrib.staticfiles import handlers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,9 +56,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'EssenseHouse.urls'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://192.168.0.103:5173",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://192.168.0.103:5173",
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 TEMPLATES = [
@@ -93,6 +96,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+
 
 
 # Password validation
@@ -138,3 +143,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
+class CORSStaticFilesHandler(handlers.StaticFilesHandler):
+    def serve(self, request):
+        response = super().serve(request)
+        response['Access-Control-Allow-Origin'] = '*'
+        return response
+
+handlers.StaticFilesHandler = CORSStaticFilesHandler

@@ -6,11 +6,15 @@ from django.conf.urls.static import static
 from backend.views import HouseListView, HouseDetailView, ConstructionTechnologyListView, \
     ConstructionTechnologyDetailView, FilterListView, FilterDetailView, HouseCategoryListView, HouseCategoryDetailView, \
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
-    ReviewsDetailView, OrderListView, OrderDetailView, UserQuestionListView, UserQuestionDetailView
+    ReviewsDetailView, OrderListView, OrderDetailView, UserQuestionListView, UserQuestionDetailView, \
+    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
     path('houses/<int:pk>/', HouseDetailView.as_view(), name='house_detail'),
+    path('houses/filter/', FilteredHouseListView.as_view(), name='filtered-house-list'),
+    path('houses/purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
+    path('houses/purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
     path('construction-technologies', ConstructionTechnologyListView.as_view(), name='construction_technology_list'),
     path('construction-technologies/<int:pk>', ConstructionTechnologyDetailView.as_view(), name='construction_technology_list'),
     path('filters/', FilterListView.as_view(), name='filter-list'),
@@ -26,5 +30,7 @@ urlpatterns = [
     path('orders/', OrderListView.as_view(), name='order_list'),
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
-    path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail')
+    path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

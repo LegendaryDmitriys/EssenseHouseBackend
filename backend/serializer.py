@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 
 from .models import House, ConstructionTechnology, Filter, HouseCategory, HouseImage, HouseInteriorImage, \
-    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion
+    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -186,3 +186,12 @@ class UserQuestionSerializer(serializers.ModelSerializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.message)
         return value
+
+
+class PurchasedHouseSerializer(serializers.ModelSerializer):
+    house = HouseSerializer(read_only=True)
+    house_id = serializers.PrimaryKeyRelatedField(queryset=House.objects.all(), source='house')
+    class Meta:
+        model = PurchasedHouse
+        fields = '__all__'
+

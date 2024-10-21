@@ -3,9 +3,10 @@ from rest_framework import generics
 from rest_framework.views import APIView
 
 from .models import House, ConstructionTechnology, Filter, HouseCategory, FinishingOption, Document, Review, Order, \
-    UserQuestion
+    UserQuestion, PurchasedHouse
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, FilterSerializer, HouseCategorySerializer, \
-    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, UserQuestionSerializer
+    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, UserQuestionSerializer, \
+    PurchasedHouseSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -84,6 +85,18 @@ class HouseListView(APIView):
 class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
+
+
+
+class FilteredHouseListView(APIView):
+    serializer_class = HouseSerializer
+
+    def get(self, request):
+        filters = request.query_params
+
+        houses = filter_houses(filters)
+        serializer = self.serializer_class(houses, many=True)
+        return Response(serializer.data)
 
 
 class ConstructionTechnologyListView(generics.ListCreateAPIView):
@@ -183,3 +196,14 @@ class UserQuestionListView(generics.ListCreateAPIView):
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
+
+
+class PurchaseHouseListView(generics.ListCreateAPIView):
+    queryset = PurchasedHouse.objects.all()
+    serializer_class = PurchasedHouseSerializer
+
+
+class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PurchasedHouse.objects.all()
+    serializer_class = PurchasedHouseSerializer
+
