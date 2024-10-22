@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="creating custom question tables to save questions about houses they are interested in, as well as CRUD and validation.">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +25,12 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -113,7 +116,9 @@
       <workItem from="1729258201483" duration="12029000" />
       <workItem from="1729367934963" duration="2591000" />
       <workItem from="1729424966922" duration="7156000" />
-      <workItem from="1729521506436" duration="15263000" />
+      <workItem from="1729521506436" duration="15587000" />
+      <workItem from="1729587773760" duration="1323000" />
+      <workItem from="1729613268096" duration="16657000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -147,7 +152,23 @@
       <option name="project" value="LOCAL" />
       <updated>1729370432644</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way">
+      <option name="closed" value="true" />
+      <created>1729545252441</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1729545252441</updated>
+    </task>
+    <task id="LOCAL-00006" summary="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way">
+      <option name="closed" value="true" />
+      <created>1729545272082</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1729545272082</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -169,6 +190,7 @@
     <MESSAGE value="developed logic for the ProjectDetail, reviews pages, developed file processing - loading and unloading" />
     <MESSAGE value="the logic for storing project orders has been implemented, as well as validation for placing an order (validation of mail, number, construction location)" />
     <MESSAGE value="creating custom question tables to save questions about houses they are interested in, as well as CRUD and validation." />
-    <option name="LAST_COMMIT_MESSAGE" value="creating custom question tables to save questions about houses they are interested in, as well as CRUD and validation." />
+    <MESSAGE value="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way" />
+    <option name="LAST_COMMIT_MESSAGE" value="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way" />
   </component>
 </project>

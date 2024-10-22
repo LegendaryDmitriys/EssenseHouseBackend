@@ -165,14 +165,22 @@ class Review(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает одобрения'),
+        ('approved', 'Одобрено'),
+        ('rejected', 'Отклонено'),
+    ]
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Выбранный дом")
-    finishing_option = models.ForeignKey('FinishingOption', on_delete=models.CASCADE)
+    finishing_option = models.ForeignKey('FinishingOption', on_delete=models.CASCADE, null=True, blank=True)
     construction_place = models.CharField(max_length=255)
     message = models.TextField()
     data_created = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус заказа")
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Широта")
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Долгота")
 
     def __str__(self):
         return f"Заказ от {self.name} на дом {self.house.title}"
