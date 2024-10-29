@@ -40,10 +40,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'backend'
+    'backend',
+    'debug_toolbar',
+    'django_filters'
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+}
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+    "192.168.0.103"
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -155,3 +171,4 @@ class CORSStaticFilesHandler(handlers.StaticFilesHandler):
         return response
 
 handlers.StaticFilesHandler = CORSStaticFilesHandler
+

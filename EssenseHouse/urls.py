@@ -1,13 +1,13 @@
 
-from django.urls import path
+from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
 from backend.views import HouseListView, HouseDetailView, ConstructionTechnologyListView, \
-    ConstructionTechnologyDetailView, FilterListView, FilterDetailView, HouseCategoryListView, HouseCategoryDetailView, \
+    ConstructionTechnologyDetailView, HouseCategoryListView, HouseCategoryDetailView, \
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
     ReviewsDetailView, OrderListView, OrderDetailView, UserQuestionListView, UserQuestionDetailView, \
-    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView
+    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterListView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -15,10 +15,9 @@ urlpatterns = [
     path('houses/filter/', FilteredHouseListView.as_view(), name='filtered-house-list'),
     path('houses/purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
     path('houses/purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
+    path('filters/', FilterListView.as_view(), name='filter-list'),
     path('construction-technologies', ConstructionTechnologyListView.as_view(), name='construction_technology_list'),
     path('construction-technologies/<int:pk>', ConstructionTechnologyDetailView.as_view(), name='construction_technology_list'),
-    path('filters/', FilterListView.as_view(), name='filter-list'),
-    path('filters/<int:pk>/', FilterDetailView.as_view(), name='filter-detail'),
     path('category/', HouseCategoryListView.as_view(), name='category_list'),
     path('categories/<slug:slug>/', HouseCategoryDetailView.as_view(), name='house_by_category'),
     path('finishing-options/', FinishingOptionListView.as_view(), name='finishing_options'),
@@ -34,3 +33,8 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('__debug__/', include('debug_toolbar.urls')),
+    ]

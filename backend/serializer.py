@@ -5,7 +5,7 @@ import requests
 from django.core.exceptions import ValidationError
 
 
-from .models import House, ConstructionTechnology, Filter, HouseCategory, HouseImage, HouseInteriorImage, \
+from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
     HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse
 
 
@@ -97,10 +97,6 @@ class HouseSerializer(serializers.ModelSerializer):
         return instance
 
 
-class FilterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Filter
-        fields = '__all__'
 
 
 

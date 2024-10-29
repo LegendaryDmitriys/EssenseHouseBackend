@@ -1,14 +1,10 @@
 import os
 
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
 import random
 from django.db.models import Count
 from django.utils import timezone
-import requests
-from django.core.exceptions import ValidationError
-
 
 class HouseCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -135,12 +131,18 @@ class Document(models.Model):
     def __str__(self):
         return f"{self.title} - {self.file.size} байт"
 
-class Filter(models.Model):
+
+
+class FilterOption(models.Model):
     name = models.CharField(max_length=50)
-    value = models.CharField(max_length=100)
+    field_name = models.CharField(max_length=50,verbose_name="Имя поля из модели House")
+    filter_type = models.CharField(max_length=50, choices=[('exact', 'Точное совпадение'), ('range', 'Диапазон'), ('contains', 'Содержит')])
+    options = models.JSONField(default=dict)
 
     def __str__(self):
-        return f"{self.name}: {self.value}"
+        return self.name
+
+
 
 class Review(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True, default='Аноним')

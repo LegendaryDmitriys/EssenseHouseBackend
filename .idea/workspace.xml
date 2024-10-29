@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="implemented logic between the Orders and Purchased houses tables">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +63,7 @@
     &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitry/Desktop/putoshka-asistent-backend&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -118,7 +122,17 @@
       <workItem from="1729424966922" duration="7156000" />
       <workItem from="1729521506436" duration="15587000" />
       <workItem from="1729587773760" duration="1323000" />
-      <workItem from="1729613268096" duration="16657000" />
+      <workItem from="1729613268096" duration="16738000" />
+      <workItem from="1729632331651" duration="557000" />
+      <workItem from="1729701966454" duration="5847000" />
+      <workItem from="1729711263727" duration="154000" />
+      <workItem from="1729711984526" duration="1168000" />
+      <workItem from="1729714269204" duration="9000" />
+      <workItem from="1729768890193" duration="1248000" />
+      <workItem from="1730049549570" duration="23000" />
+      <workItem from="1730049582419" duration="13373000" />
+      <workItem from="1730130922887" duration="839000" />
+      <workItem from="1730211267327" duration="8943000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -168,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1729545272082</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="implemented logic between the Orders and Purchased houses tables">
+      <option name="closed" value="true" />
+      <created>1729632155285</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1729632155285</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -191,6 +213,7 @@
     <MESSAGE value="the logic for storing project orders has been implemented, as well as validation for placing an order (validation of mail, number, construction location)" />
     <MESSAGE value="creating custom question tables to save questions about houses they are interested in, as well as CRUD and validation." />
     <MESSAGE value="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way" />
-    <option name="LAST_COMMIT_MESSAGE" value="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way" />
+    <MESSAGE value="implemented logic between the Orders and Purchased houses tables" />
+    <option name="LAST_COMMIT_MESSAGE" value="implemented logic between the Orders and Purchased houses tables" />
   </component>
 </project>
