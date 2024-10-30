@@ -6,7 +6,8 @@ from django.core.exceptions import ValidationError
 
 
 from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
-    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse
+    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse, \
+    FilterOption
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -97,6 +98,10 @@ class HouseSerializer(serializers.ModelSerializer):
         return instance
 
 
+class FilterOptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FilterOption
+        fields = '__all__'
 
 
 

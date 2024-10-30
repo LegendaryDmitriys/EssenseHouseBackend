@@ -7,7 +7,7 @@ from .models import House, ConstructionTechnology, HouseCategory, FinishingOptio
     UserQuestion, PurchasedHouse, FilterOption
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, HouseCategorySerializer, \
     FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, UserQuestionSerializer, \
-    PurchasedHouseSerializer
+    PurchasedHouseSerializer, FilterOptionsSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -67,17 +67,17 @@ def filter_houses(filters, category=None):
     return houses
 
 
+class DynamicHouseFilter(django_filters.FilterSet):
+    class Meta:
+        model = House
+        fields = {}
+
 class HouseListView(APIView):
     serializer_class = HouseSerializer
 
     def get(self, request, id=None):
         if id is not None:
-            try:
-                house = House.objects.get(id=id)
-                serializer = self.serializer_class(house)
-                return Response(serializer.data)
-            except House.DoesNotExist:
-                return Response({'detail': 'Дом не найден.'}, status=status.HTTP_404_NOT_FOUND)
+            return self.get_house_by_id(id)
 
         category_slug = request.query_params.get('category')
         filters = request.query_params
@@ -87,6 +87,14 @@ class HouseListView(APIView):
         serializer = self.serializer_class(houses, many=True)
         return Response(serializer.data)
 
+    def get_house_by_id(self, id):
+        try:
+            house = House.objects.get(id=id)
+            serializer = self.serializer_class(house)
+            return Response(serializer.data)
+        except House.DoesNotExist:
+            return Response({'detail': 'Дом не найден.'}, status=status.HTTP_404_NOT_FOUND)
+
     def filter_houses(self, filters, category_slug=None):
         houses = House.objects.all()
 
@@ -95,65 +103,35 @@ class HouseListView(APIView):
                 category = HouseCategory.objects.get(slug=category_slug)
                 houses = houses.filter(category=category)
             except HouseCategory.DoesNotExist:
-                return []
+                return House.objects.none()
 
-        price_min = filters.get('price_min', None)
-        price_max = filters.get('price_max', None)
+        filtered_houses = self.create_dynamic_filter(filters, houses)
+
+        return filtered_houses
+
+    def create_dynamic_filter(self, filters, queryset):
+        filters_db = FilterOption.objects.all()
+        filter_dict = {}
+
+        for filter_option in filters_db:
+            if filter_option.filter_type == 'exact':
+                filter_dict[filter_option.field_name] = django_filters.CharFilter(field_name=filter_option.field_name)
+            elif filter_option.filter_type == 'range':
+                filter_dict[filter_option.field_name + '__gte'] = django_filters.NumberFilter(
+                    field_name=filter_option.field_name, lookup_expr='gte')
+                filter_dict[filter_option.field_name + '__lte'] = django_filters.NumberFilter(
+                    field_name=filter_option.field_name, lookup_expr='lte')
+            elif filter_option.filter_type == 'contains':
+                filter_dict[filter_option.field_name] = django_filters.CharFilter(
+                    field_name=filter_option.field_name, lookup_expr='icontains')
+
+        house_filter = DynamicHouseFilter(filters, queryset=queryset)
+        house_filter.filters.update(filter_dict)
+
+        return house_filter.qs
 
 
-        if price_min is not None:
-            try:
-                price_min = int(price_min)
-                houses = houses.filter(price__gte=price_min)
-            except ValueError:
-                pass  # Игнорируем, если преобразование не удалось
 
-        if price_max is not None:
-            try:
-                price_max = int(price_max)
-                houses = houses.filter(price__lte=price_max)
-            except ValueError:
-                pass  # Игнорируем, если преобразование не удалось
-
-        if 'bestSeller' in filters and filters.getlist('bestSeller'):
-            houses = houses.filter(best_seller__in=filters.getlist('bestSeller'))
-
-        if 'area_min' in filters and filters['area_min']:
-            min_area = int(filters['area_min'])
-            houses = houses.filter(area__gte=min_area)
-
-        if 'area_max' in filters and filters['area_max']:
-            max_area = int(filters['area_max'])
-            houses = houses.filter(area__lte=max_area)
-
-        if 'floors' in filters and filters.getlist('floors'):
-            houses = houses.filter(floors__in=filters.getlist('floors'))
-
-        if 'rooms' in filters and filters.getlist('rooms'):
-            houses = houses.filter(rooms__in=filters.getlist('rooms'))
-
-        if 'living_area_min' in filters and filters['living_area_min']:
-            min_living_area = int(filters['living_area_min'])
-            houses = houses.filter(living_area__gte=min_living_area)
-
-        if 'living_area_max' in filters and filters['living_area_max']:
-            max_living_area = int(filters['living_area_max'])
-            houses = houses.filter(living_area__lte=max_living_area)
-
-        if 'bedrooms' in filters and filters.getlist('bedrooms'):
-            houses = houses.filter(bedrooms__in=filters.getlist('bedrooms'))
-
-        if 'garage' in filters:
-            garage_value = True if filters['garage'] == 'Да' else False
-            houses = houses.filter(garage=garage_value)
-
-        if 'purpose' in filters and filters.getlist('purpose'):
-            houses = houses.filter(purpose__in=filters.getlist('purpose'))
-
-        if 'constructionTechnology' in filters and filters.getlist('constructionTechnology'):
-            houses = houses.filter(construction_technology__in=filters.getlist('constructionTechnology'))
-
-        return houses
 
 
 class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -183,38 +161,38 @@ class ConstructionTechnologyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ConstructionTechnology.objects.all()
     serializer_class = ConstructionTechnologySerializer
 
-
-class DynamicHouseFilter(django_filters.FilterSet):
-    class Meta:
-        model = House
-        fields = {}
-
-class FilterListView(APIView):
-    def get(self, request):
-        filters_db = FilterOption.objects.all()
-        filter_dict = {}
-
-        for filter_option in filters_db:
-            if filter_option.filter_type == 'exact':
-                filter_dict[filter_option.field_name] = django_filters.CharFilter(field_name=filter_option.field_name)
-            elif filter_option.filter_type == 'range':
-                filter_dict[filter_option.field_name + '__gte'] = django_filters.NumberFilter(
-                    field_name=filter_option.field_name, lookup_expr='gte')
-                filter_dict[filter_option.field_name + '__lte'] = django_filters.NumberFilter(
-                    field_name=filter_option.field_name, lookup_expr='lte')
-            elif filter_option.filter_type == 'contains':
-                filter_dict[filter_option.field_name] = django_filters.CharFilter(
-                    field_name=filter_option.field_name, lookup_expr='icontains')
-
-        house_filter = DynamicHouseFilter(request.GET, queryset=House.objects.all())
-        house_filter.filters.update(filter_dict)
-
-
-        filtered_houses = house_filter.qs
-
-
-        serializer = HouseSerializer(filtered_houses, many=True)
-        return Response(serializer.data)
+#
+# class DynamicHouseFilter(django_filters.FilterSet):
+#     class Meta:
+#         model = House
+#         fields = {}
+#
+# class FilterListView(APIView):
+#     def get(self, request):
+#         filters_db = FilterOption.objects.all()
+#         filter_dict = {}
+#
+#         for filter_option in filters_db:
+#             if filter_option.filter_type == 'exact':
+#                 filter_dict[filter_option.field_name] = django_filters.CharFilter(field_name=filter_option.field_name)
+#             elif filter_option.filter_type == 'range':
+#                 filter_dict[filter_option.field_name + '__gte'] = django_filters.NumberFilter(
+#                     field_name=filter_option.field_name, lookup_expr='gte')
+#                 filter_dict[filter_option.field_name + '__lte'] = django_filters.NumberFilter(
+#                     field_name=filter_option.field_name, lookup_expr='lte')
+#             elif filter_option.filter_type == 'contains':
+#                 filter_dict[filter_option.field_name] = django_filters.CharFilter(
+#                     field_name=filter_option.field_name, lookup_expr='icontains')
+#
+#         house_filter = DynamicHouseFilter(request.GET, queryset=House.objects.all())
+#         house_filter.filters.update(filter_dict)
+#
+#
+#         filtered_houses = house_filter.qs
+#
+#
+#         serializer = HouseSerializer(filtered_houses, many=True)
+#         return Response(serializer.data)
 
 
 class HouseCategoryListView(generics.ListCreateAPIView):
@@ -309,3 +287,8 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
+
+
+class FilterOptionListView(generics.ListCreateAPIView):
+    queryset = FilterOption.objects.all()
+    serializer_class = FilterOptionsSerializer

@@ -21,10 +21,10 @@ class HouseCategory(models.Model):
         return self.name
 
     def get_random_image(self):
-        houses_with_images = self.houses.annotate(num_images=Count('images')).filter(num_images__gt=0)
-        if houses_with_images.exists():
-            random_house = random.choice(houses_with_images)
-            return random.choice(random_house.images.all()).image.url
+        first_house_with_images = self.houses.annotate(num_images=Count('images')).filter(num_images__gt=0).first()
+        if first_house_with_images:
+            first_image = first_house_with_images.images.first()
+            return first_image.image.url if first_image else None
         return None
 
 

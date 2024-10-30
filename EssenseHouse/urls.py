@@ -7,7 +7,7 @@ from backend.views import HouseListView, HouseDetailView, ConstructionTechnology
     ConstructionTechnologyDetailView, HouseCategoryListView, HouseCategoryDetailView, \
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
     ReviewsDetailView, OrderListView, OrderDetailView, UserQuestionListView, UserQuestionDetailView, \
-    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterListView
+    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterOptionListView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -15,7 +15,8 @@ urlpatterns = [
     path('houses/filter/', FilteredHouseListView.as_view(), name='filtered-house-list'),
     path('houses/purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
     path('houses/purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
-    path('filters/', FilterListView.as_view(), name='filter-list'),
+    # path('filters/', FilterListView.as_view(), name='filter-list'),
+    path('filter-options/', FilterOptionListView.as_view(), name='finishing-option-list'),
     path('construction-technologies', ConstructionTechnologyListView.as_view(), name='construction_technology_list'),
     path('construction-technologies/<int:pk>', ConstructionTechnologyDetailView.as_view(), name='construction_technology_list'),
     path('category/', HouseCategoryListView.as_view(), name='category_list'),
