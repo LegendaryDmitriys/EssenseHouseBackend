@@ -81,8 +81,9 @@ class HouseListView(APIView):
 
         category_slug = request.query_params.get('category')
         filters = request.query_params
+        sort_by = request.query_params.get('sort', 'priceAsc')  # Получаем параметр сортировки
 
-        houses = self.filter_houses(filters, category_slug)
+        houses = self.filter_houses(filters, category_slug, sort_by)
 
         serializer = self.serializer_class(houses, many=True)
         return Response(serializer.data)
@@ -95,9 +96,10 @@ class HouseListView(APIView):
         except House.DoesNotExist:
             return Response({'detail': 'Дом не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
-    def filter_houses(self, filters, category_slug=None):
+    def filter_houses(self, filters, category_slug=None, sort_by='priceAsc'):
         houses = House.objects.all()
 
+        # Фильтрация по категории
         if category_slug:
             try:
                 category = HouseCategory.objects.get(slug=category_slug)
@@ -105,7 +107,18 @@ class HouseListView(APIView):
             except HouseCategory.DoesNotExist:
                 return House.objects.none()
 
+        # Применение фильтров
         filtered_houses = self.create_dynamic_filter(filters, houses)
+
+        # Сортировка
+        if sort_by == 'priceAsc':
+            filtered_houses = filtered_houses.order_by('price')
+        elif sort_by == 'priceDesc':
+            filtered_houses = filtered_houses.order_by('-price')
+        elif sort_by == 'popularityAsc':
+            filtered_houses = filtered_houses.order_by('popularity')
+        elif sort_by == 'popularityDesc':
+            filtered_houses = filtered_houses.order_by('-popularity')
 
         return filtered_houses
 

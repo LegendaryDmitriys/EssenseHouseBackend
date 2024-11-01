@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="add logic filter houses">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="add logic dynamic filter houses">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -132,7 +129,9 @@
       <workItem from="1730049582419" duration="13373000" />
       <workItem from="1730130922887" duration="839000" />
       <workItem from="1730211267327" duration="16311000" />
-      <workItem from="1730287310903" duration="9464000" />
+      <workItem from="1730287310903" duration="9513000" />
+      <workItem from="1730387559085" duration="2040000" />
+      <workItem from="1730475402728" duration="11955000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -198,7 +197,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730221163534</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="add logic dynamic filter houses">
+      <option name="closed" value="true" />
+      <created>1730299166954</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1730299166954</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -223,6 +230,7 @@
     <MESSAGE value="the PurchasedHouse table was created, CRUD was developed, and the logic of processing static files on the server was done this way" />
     <MESSAGE value="implemented logic between the Orders and Purchased houses tables" />
     <MESSAGE value="add logic filter houses" />
-    <option name="LAST_COMMIT_MESSAGE" value="add logic filter houses" />
+    <MESSAGE value="add logic dynamic filter houses" />
+    <option name="LAST_COMMIT_MESSAGE" value="add logic dynamic filter houses" />
   </component>
 </project>
