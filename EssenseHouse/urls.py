@@ -31,6 +31,7 @@ urlpatterns = [
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
     path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
+    path('auth/', include('auth_app.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
