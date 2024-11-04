@@ -254,6 +254,13 @@ class ReviewsListView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+    def get_queryset(self):
+        status = self.request.query_params.get('status', None)
+
+        if status:
+            return Review.objects.filter(status=status)
+        return Review.objects.all()
+
 
 class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()

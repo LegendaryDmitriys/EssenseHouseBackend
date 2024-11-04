@@ -4,21 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="edit logic filters">
-      <change afterPath="$PROJECT_DIR$/auth_app/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/backends.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/migrations/0001_initial.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth_app/views.py" afterDir="false" />
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="added service for admin authorization using JWT tokens">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,7 +134,8 @@
       <workItem from="1730287310903" duration="9513000" />
       <workItem from="1730387559085" duration="2040000" />
       <workItem from="1730475402728" duration="12025000" />
-      <workItem from="1730637954063" duration="10504000" />
+      <workItem from="1730637954063" duration="11880000" />
+      <workItem from="1730722498626" duration="8037000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -226,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730491565301</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="added service for admin authorization using JWT tokens">
+      <option name="closed" value="true" />
+      <created>1730654847785</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1730654847785</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,6 +252,7 @@
     <MESSAGE value="add logic filter houses" />
     <MESSAGE value="add logic dynamic filter houses" />
     <MESSAGE value="edit logic filters" />
-    <option name="LAST_COMMIT_MESSAGE" value="edit logic filters" />
+    <MESSAGE value="added service for admin authorization using JWT tokens" />
+    <option name="LAST_COMMIT_MESSAGE" value="added service for admin authorization using JWT tokens" />
   </component>
 </project>

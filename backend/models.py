@@ -145,11 +145,18 @@ class FilterOption(models.Model):
 
 
 class Review(models.Model):
+    STATUS_CHOICES = [
+        ('published', 'Опубликован'),
+        ('pending', 'Ожидает публикации'),
+        ('rejected', 'Отказано'),
+    ]
+
     name = models.CharField(max_length=255, blank=True, null=True, default='Аноним')
     review = models.TextField()
     date = models.DateTimeField(default=timezone.now)
     rating = models.PositiveSmallIntegerField()
     file = models.FileField(upload_to='user/reviews/', blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 
     def save(self, *args, **kwargs):
         if not self.name:

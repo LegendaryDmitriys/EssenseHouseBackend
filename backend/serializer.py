@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from rest_framework import serializers
 import requests
 from django.core.exceptions import ValidationError
-
+from rest_framework.fields import SerializerMethodField
 
 from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
     HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse, \
@@ -110,7 +110,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     file_size = serializers.SerializerMethodField()
     class Meta:
         model = Review
-        fields = ['id', 'name', 'review', 'date', 'rating', 'file', 'file_name', 'file_size']
+        fields = ['id', 'name', 'review', 'date', 'rating', 'file', 'file_name', 'file_size', 'status']
 
     def get_file_name(self, obj):
         return obj.get_file_name()
@@ -121,7 +121,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    finishing_options = FinishingOptionSerializer(read_only=True)
+    house = SerializerMethodField(read_only=True)
+    finishing_option = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
@@ -133,6 +134,20 @@ class OrderSerializer(serializers.ModelSerializer):
             'message': {'required': False},
             'house': {'required': False},
         }
+
+    def get_house(self, obj):
+        return {
+            "id": obj.house.id,
+            "title": obj.house.title,
+        }
+
+    def get_finishing_option(self, obj):
+        if obj.finishing_option:
+            return {
+                "id": obj.finishing_option.id,
+                "title": obj.finishing_option.title,
+            }
+        return None
 
     def validate_phone(self, value):
         phone_validator = RegexValidator(
