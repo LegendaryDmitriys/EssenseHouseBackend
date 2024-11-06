@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 from backend.views import HouseListView, HouseDetailView, ConstructionTechnologyListView, \
     ConstructionTechnologyDetailView, HouseCategoryListView, HouseCategoryDetailView, \
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
-    ReviewsDetailView, OrderListView, OrderDetailView, UserQuestionListView, UserQuestionDetailView, \
-    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterOptionListView
+    ReviewsDetailView, OrderListView, OrderDetailView, \
+    FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterOptionListView, \
+    UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -15,7 +16,6 @@ urlpatterns = [
     path('houses/filter/', FilteredHouseListView.as_view(), name='filtered-house-list'),
     path('houses/purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
     path('houses/purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
-    # path('filters/', FilterListView.as_view(), name='filter-list'),
     path('filter-options/', FilterOptionListView.as_view(), name='finishing-option-list'),
     path('construction-technologies', ConstructionTechnologyListView.as_view(), name='construction_technology_list'),
     path('construction-technologies/<int:pk>', ConstructionTechnologyDetailView.as_view(), name='construction_technology_list'),
@@ -31,7 +31,10 @@ urlpatterns = [
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
     path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
+    path('user-questions/house/', UserQuestionHouseListView.as_view(), name='user_question_house_list'),
+    path('user-question/house/<int:pk>/', UserQuestionHouseDetailView.as_view(), name='user_question_house_detail'),
     path('auth/', include('auth_app.urls')),
+    path('mail/', include('mail_service.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

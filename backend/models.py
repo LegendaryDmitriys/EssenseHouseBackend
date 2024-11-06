@@ -195,16 +195,38 @@ class Order(models.Model):
         return f"Заказ от {self.name} на дом {self.house.title}"
 
 
-class UserQuestion(models.Model):
+class UserQuestionHouse(models.Model):
+    STATUS_CHOICES = [
+        ('waiting', 'Ожидает ответа'),
+        ('answered', 'Ответ предоставлен'),
+        ('closed', 'Закрыт'),
+    ]
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Интересующий дом")
     question = models.TextField(verbose_name="Вопрос")
     created_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting')
 
     def __str__(self):
         return f"Вопрос от {self.name} по дому {self.house.title}"
+
+
+class UserQuestion(models.Model):
+    STATUS_CHOICES = [
+        ('waiting', 'Ожидает ответа'),
+        ('answered', 'Ответ предоставлен'),
+        ('closed', 'Закрыт'),
+    ]
+
+    name = models.CharField(max_length=255, verbose_name="Имя")
+    phone = models.CharField(max_length=20, verbose_name="Телефон")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting', verbose_name="Статус")
+
+    def __str__(self):
+        return f"Запрос от {self.name} ({self.phone})"
 
 
 class PurchasedHouse(models.Model):

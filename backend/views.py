@@ -4,10 +4,10 @@ from rest_framework import generics
 from rest_framework.views import APIView
 
 from .models import House, ConstructionTechnology, HouseCategory, FinishingOption, Document, Review, Order, \
-    UserQuestion, PurchasedHouse, FilterOption
+    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, HouseCategorySerializer, \
-    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, UserQuestionSerializer, \
-    PurchasedHouseSerializer, FilterOptionsSerializer
+    FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, \
+    PurchasedHouseSerializer, FilterOptionsSerializer, UserQuestionHouseSerializer, UserQuestionSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -283,6 +283,22 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OrderSerializer
 
 
+class UserQuestionHouseListView(generics.ListCreateAPIView):
+    queryset = UserQuestionHouse.objects.all()
+    serializer_class = UserQuestionHouseSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserQuestionHouse.objects.all()
+    serializer_class = UserQuestionHouseSerializer
+
+
 class UserQuestionListView(generics.ListCreateAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
@@ -303,6 +319,13 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
 
+    def get_queryset(self):
+        construction_status = self.request.query_params.get('construction_status', None)
+
+        if construction_status:
+            return PurchasedHouse.objects.filter(construction_status=construction_status)
+        return PurchasedHouse.objects.all()
+
 
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
@@ -312,3 +335,5 @@ class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
 class FilterOptionListView(generics.ListCreateAPIView):
     queryset = FilterOption.objects.all()
     serializer_class = FilterOptionsSerializer
+
+

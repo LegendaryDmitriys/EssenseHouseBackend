@@ -6,8 +6,8 @@ from django.core.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
 
 from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
-    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, UserQuestion, PurchasedHouse, \
-    FilterOption
+    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, PurchasedHouse, \
+    FilterOption, UserQuestionHouse, UserQuestion
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -121,8 +121,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    house = SerializerMethodField(read_only=True)
-    finishing_option = SerializerMethodField(read_only=True)
+    house = serializers.SerializerMethodField(read_only=True)
+    finishing_option = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Order
@@ -176,16 +176,11 @@ class OrderSerializer(serializers.ModelSerializer):
                     lat = geo_data[0].get('lat')
                     lon = geo_data[0].get('lon')
 
-                    print(f"Полное название: {display_name}")
-                    print(f"Широта: {lat}, Долгота: {lon}")
-
                     if 'новгородская область' not in display_name.lower():
                         raise ValidationError("Место строительства должно находиться в пределах Новгородской области.")
 
-                    # Добавляем широту и долготу в validated_data
                     self.latitude = lat
                     self.longitude = lon
-
                 else:
                     raise ValidationError("Место строительства не найдено через OpenStreetMap.")
             else:
@@ -198,16 +193,20 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['latitude'] = getattr(self, 'latitude', None)
         validated_data['longitude'] = getattr(self, 'longitude', None)
-
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         previous_status = instance.status
         new_status = validated_data.get('status', instance.status)
 
-        instance.latitude = getattr(self, 'latitude', instance.latitude)
-        instance.longitude = getattr(self, 'longitude', instance.longitude)
+        if new_status == 'approved' and (not instance.latitude or not instance.longitude):
+            raise ValidationError({
+                "detail": "Невозможно подтвердить заказ без указания широты и долготы."
+            })
 
+
+        instance.latitude = validated_data.get('latitude', getattr(self, 'latitude', instance.latitude))
+        instance.longitude = validated_data.get('longitude', getattr(self, 'longitude', instance.longitude))
 
         if previous_status != 'approved' and new_status == 'approved':
             PurchasedHouse.objects.create(
@@ -221,11 +220,25 @@ class OrderSerializer(serializers.ModelSerializer):
                 longitude=instance.longitude,
             )
 
-            if 'status' in validated_data:
-                instance.status = new_status
+        instance = super().update(instance, validated_data)
+        return instance
 
-            instance.save()
-            return instance
+
+class UserQuestionHouseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserQuestionHouse
+        fields = '__all__'
+
+    def validate_phone(self, value):
+        phone_validator = RegexValidator(
+            regex=r'^\+?1?\d{9,15}$',
+            message="Номер телефона должен содержать от 9 до 15 цифр, включая код страны."
+        )
+        try:
+            phone_validator(value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.message)
+        return value
 
 
 class UserQuestionSerializer(serializers.ModelSerializer):

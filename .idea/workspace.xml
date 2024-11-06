@@ -4,8 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="added service for admin authorization using JWT tokens">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="edit logic info reviews">
+      <change afterPath="$PROJECT_DIR$/mail_service/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mail_service/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
@@ -135,7 +146,10 @@
       <workItem from="1730387559085" duration="2040000" />
       <workItem from="1730475402728" duration="12025000" />
       <workItem from="1730637954063" duration="11880000" />
-      <workItem from="1730722498626" duration="8037000" />
+      <workItem from="1730722498626" duration="8340000" />
+      <workItem from="1730743501279" duration="78000" />
+      <workItem from="1730802510509" duration="9009000" />
+      <workItem from="1730904715447" duration="10376000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -225,7 +239,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730654847785</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="edit logic info reviews">
+      <option name="closed" value="true" />
+      <created>1730743456512</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1730743456512</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,6 +275,7 @@
     <MESSAGE value="add logic dynamic filter houses" />
     <MESSAGE value="edit logic filters" />
     <MESSAGE value="added service for admin authorization using JWT tokens" />
-    <option name="LAST_COMMIT_MESSAGE" value="added service for admin authorization using JWT tokens" />
+    <MESSAGE value="edit logic info reviews" />
+    <option name="LAST_COMMIT_MESSAGE" value="edit logic info reviews" />
   </component>
 </project>
