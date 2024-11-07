@@ -81,12 +81,20 @@ class HouseListView(APIView):
 
         category_slug = request.query_params.get('category')
         filters = request.query_params
-        sort_by = request.query_params.get('sort', 'priceAsc')  # Получаем параметр сортировки
+        sort_by = request.query_params.get('sort', 'priceAsc')
 
         houses = self.filter_houses(filters, category_slug, sort_by)
 
         serializer = self.serializer_class(houses, many=True)
         return Response(serializer.data)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_house_by_id(self, id):
         try:
@@ -99,7 +107,6 @@ class HouseListView(APIView):
     def filter_houses(self, filters, category_slug=None, sort_by='priceAsc'):
         houses = House.objects.all()
 
-        # Фильтрация по категории
         if category_slug:
             try:
                 category = HouseCategory.objects.get(slug=category_slug)
@@ -107,10 +114,8 @@ class HouseListView(APIView):
             except HouseCategory.DoesNotExist:
                 return House.objects.none()
 
-        # Применение фильтров
         filtered_houses = self.create_dynamic_filter(filters, houses)
 
-        # Сортировка
         if sort_by == 'priceAsc':
             filtered_houses = filtered_houses.order_by('price')
         elif sort_by == 'priceDesc':
@@ -142,9 +147,6 @@ class HouseListView(APIView):
         house_filter.filters.update(filter_dict)
 
         return house_filter.qs
-
-
-
 
 
 class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):

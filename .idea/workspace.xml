@@ -4,19 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="edit logic info reviews">
-      <change afterPath="$PROJECT_DIR$/mail_service/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/apps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/migrations/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mail_service/views.py" afterDir="false" />
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="added logic for answering user questions, sending the answer to the user's mail">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
@@ -149,7 +138,9 @@
       <workItem from="1730722498626" duration="8340000" />
       <workItem from="1730743501279" duration="78000" />
       <workItem from="1730802510509" duration="9009000" />
-      <workItem from="1730904715447" duration="10376000" />
+      <workItem from="1730904715447" duration="13034000" />
+      <workItem from="1730973282334" duration="691000" />
+      <workItem from="1730987740088" duration="11207000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -247,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730743456512</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="added logic for answering user questions, sending the answer to the user's mail">
+      <option name="closed" value="true" />
+      <created>1730919997645</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1730919997645</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -276,6 +275,7 @@
     <MESSAGE value="edit logic filters" />
     <MESSAGE value="added service for admin authorization using JWT tokens" />
     <MESSAGE value="edit logic info reviews" />
-    <option name="LAST_COMMIT_MESSAGE" value="edit logic info reviews" />
+    <MESSAGE value="added logic for answering user questions, sending the answer to the user's mail" />
+    <option name="LAST_COMMIT_MESSAGE" value="added logic for answering user questions, sending the answer to the user's mail" />
   </component>
 </project>

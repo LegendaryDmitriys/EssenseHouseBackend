@@ -2,7 +2,6 @@ import os
 
 from django.db import models
 from django.utils.text import slugify
-import random
 from django.db.models import Count
 from django.utils import timezone
 
