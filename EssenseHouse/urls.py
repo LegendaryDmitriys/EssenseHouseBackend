@@ -8,7 +8,8 @@ from backend.views import HouseListView, HouseDetailView, ConstructionTechnology
     FinishingOptionListView, FinishingOptionDetailView, DocumentListView, DocumentDetailView, ReviewsListView, \
     ReviewsDetailView, OrderListView, OrderDetailView, \
     FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterOptionListView, \
-    UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView
+    UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView, \
+    HouseCategoryDetailByIdView, FilterOptionDetailView, add_images_to_house, delete_image
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -17,10 +18,12 @@ urlpatterns = [
     path('houses/purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
     path('houses/purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
     path('filter-options/', FilterOptionListView.as_view(), name='finishing-option-list'),
+    path('filter-options/<int:pk>/', FilterOptionDetailView.as_view(), name='finishing-option-detail'),
     path('construction-technologies', ConstructionTechnologyListView.as_view(), name='construction_technology_list'),
     path('construction-technologies/<int:pk>', ConstructionTechnologyDetailView.as_view(), name='construction_technology_list'),
     path('category/', HouseCategoryListView.as_view(), name='category_list'),
     path('categories/<slug:slug>/', HouseCategoryDetailView.as_view(), name='house_by_category'),
+    path('category/<int:pk>/', HouseCategoryDetailByIdView.as_view(), name='house_by_category'),
     path('finishing-options/', FinishingOptionListView.as_view(), name='finishing_options'),
     path('finishing-options/<int:pk>/', FinishingOptionDetailView.as_view(), name='finishing_options'),
     path('houses-document/', DocumentListView.as_view(), name='document_list'),
@@ -35,6 +38,8 @@ urlpatterns = [
     path('user-question/house/<int:pk>/', UserQuestionHouseDetailView.as_view(), name='user_question_house_detail'),
     path('auth/', include('auth_app.urls')),
     path('mail/', include('mail_service.urls')),
+    path('houses/<int:house_id>/images/', add_images_to_house, name='add_images_to_house'),
+    path('images/<int:image_id>/delete/', delete_image, name='delete_image'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

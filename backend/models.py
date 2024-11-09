@@ -68,7 +68,7 @@ class House(models.Model):
     construction_technology = models.ForeignKey(ConstructionTechnology, on_delete=models.CASCADE)
     category = models.ForeignKey(HouseCategory, on_delete=models.CASCADE, related_name='houses')
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
-
+    finishing_options = models.ManyToManyField('FinishingOption', through='HouseFinishing', related_name='houses')
 
     def __str__(self):
         return f"Дом {self.pk} - {self.price} руб."
@@ -104,7 +104,6 @@ class HouseLayoutImage(models.Model):
 
 
 class FinishingOption(models.Model):
-    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='finishing_options')
     title = models.CharField(max_length=100, verbose_name='Заголовок')
     description = models.TextField(verbose_name="Описание")
     price_per_sqm = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена за м²", null=True, blank=True)
@@ -113,6 +112,13 @@ class FinishingOption(models.Model):
     def __str__(self):
         return f"{self.description} - {self.price_per_sqm} ₽ за м²"
 
+
+class HouseFinishing(models.Model):
+    house = models.ForeignKey('House', on_delete=models.CASCADE)
+    finishing_option = models.ForeignKey('FinishingOption', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Отделка {self.finishing_option.title} для дома {self.house.title}"
 
 class Document(models.Model):
     house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='documents')

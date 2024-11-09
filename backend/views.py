@@ -1,17 +1,18 @@
 import django_filters
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from .models import House, ConstructionTechnology, HouseCategory, FinishingOption, Document, Review, Order, \
-    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion
+    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, HouseImage
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, HouseCategorySerializer, \
     FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, \
     PurchasedHouseSerializer, FilterOptionsSerializer, UserQuestionHouseSerializer, UserQuestionSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django_filters import rest_framework as filters
 
 
 
@@ -176,38 +177,6 @@ class ConstructionTechnologyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ConstructionTechnology.objects.all()
     serializer_class = ConstructionTechnologySerializer
 
-#
-# class DynamicHouseFilter(django_filters.FilterSet):
-#     class Meta:
-#         model = House
-#         fields = {}
-#
-# class FilterListView(APIView):
-#     def get(self, request):
-#         filters_db = FilterOption.objects.all()
-#         filter_dict = {}
-#
-#         for filter_option in filters_db:
-#             if filter_option.filter_type == 'exact':
-#                 filter_dict[filter_option.field_name] = django_filters.CharFilter(field_name=filter_option.field_name)
-#             elif filter_option.filter_type == 'range':
-#                 filter_dict[filter_option.field_name + '__gte'] = django_filters.NumberFilter(
-#                     field_name=filter_option.field_name, lookup_expr='gte')
-#                 filter_dict[filter_option.field_name + '__lte'] = django_filters.NumberFilter(
-#                     field_name=filter_option.field_name, lookup_expr='lte')
-#             elif filter_option.filter_type == 'contains':
-#                 filter_dict[filter_option.field_name] = django_filters.CharFilter(
-#                     field_name=filter_option.field_name, lookup_expr='icontains')
-#
-#         house_filter = DynamicHouseFilter(request.GET, queryset=House.objects.all())
-#         house_filter.filters.update(filter_dict)
-#
-#
-#         filtered_houses = house_filter.qs
-#
-#
-#         serializer = HouseSerializer(filtered_houses, many=True)
-#         return Response(serializer.data)
 
 
 class HouseCategoryListView(generics.ListCreateAPIView):
@@ -230,6 +199,10 @@ class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         serializer = HouseSerializer(houses, many=True)
         return Response(serializer.data)
 
+
+class HouseCategoryDetailByIdView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = HouseCategory.objects.all()
+    serializer_class = HouseCategorySerializer
 
 
 class FinishingOptionListView(generics.ListCreateAPIView):
@@ -339,3 +312,28 @@ class FilterOptionListView(generics.ListCreateAPIView):
     serializer_class = FilterOptionsSerializer
 
 
+class FilterOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = FilterOption.objects.all()
+    serializer_class = FilterOptionsSerializer
+
+@api_view(['POST'])
+def add_images_to_house(request, house_id):
+    house = get_object_or_404(House, id=house_id)
+    images = request.FILES.getlist('houses')
+
+    if not images:
+        raise ValidationError({"error": "No images uploaded."})
+
+    for img in images:
+        HouseImage.objects.create(house=house, image=img)
+
+    return Response({"message": "Images added successfully."}, status=status.HTTP_201_CREATED)
+
+@api_view(['DELETE'])
+def delete_image(request, image_id):
+    try:
+        image = HouseImage.objects.get(id=image_id)
+        image.delete()
+        return Response({"message": "Image deleted successfully."}, status=status.HTTP_200_OK)
+    except HouseImage.DoesNotExist:
+        return Response({"error": "Image not found."}, status=status.HTTP_404_NOT_FOUND)

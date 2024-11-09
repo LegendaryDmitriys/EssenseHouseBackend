@@ -3,17 +3,18 @@ from django.core.validators import RegexValidator
 from rest_framework import serializers
 import requests
 from django.core.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField
 
 from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
     HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, PurchasedHouse, \
-    FilterOption, UserQuestionHouse, UserQuestion
+    FilterOption, UserQuestionHouse, UserQuestion, HouseFinishing
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
     class Meta:
         model = ConstructionTechnology
         fields = ['id','name']
+
+
 
 class HouseCategorySerializer(serializers.ModelSerializer):
     random_image_url = serializers.SerializerMethodField()
@@ -23,34 +24,65 @@ class HouseCategorySerializer(serializers.ModelSerializer):
 
     def get_random_image_url(self, obj):
         return obj.get_random_image()
-
 class HouseImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseImage
         fields = ['id', 'image']
+        extra_kwargs = {
+            'image': {'required': False}  # Сделаем поле 'image' необязательным
+        }
 
 class HouseInteriorImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseInteriorImage
         fields = ['id', 'image']
-
+        extra_kwargs = {
+            'image': {'required': False}  # Сделаем поле 'image' необязательным
+        }
 
 class HouseFacadeImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseFacadeImage
         fields = ['id', 'image']
-
+        extra_kwargs = {
+            'image': {'required': False}  # Сделаем поле 'image' необязательным
+        }
 
 class HouseLayoutImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = HouseLayoutImage
         fields = ['id', 'image']
-
+        extra_kwargs = {
+            'image': {'required': False}  # Сделаем поле 'image' необязательным
+        }
 
 class FinishingOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinishingOption
         fields = ['id', 'title', 'description', 'image', 'price_per_sqm']
+
+    def create(self, validated_data):
+        return FinishingOption.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.price_per_sqm = validated_data.get('price_per_sqm', instance.price_per_sqm)
+
+        image = validated_data.get('image', None)
+        if image:
+
+            instance.image = image
+
+        instance.save()
+        return instance
+
+class HouseFinishingSerializer(serializers.ModelSerializer):
+    finishing_option = FinishingOptionSerializer(read_only=True)
+
+    class Meta:
+        model = HouseFinishing
+        fields = "__all__"
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -60,11 +92,11 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class HouseSerializer(serializers.ModelSerializer):
-    images = HouseImageSerializer(many=True)
-    interior_images = HouseInteriorImageSerializer(many=True)
-    facade_images = HouseFacadeImageSerializer(many=True)
-    layout_images = HouseLayoutImageSerializer(many=True)
-    construction_technology = ConstructionTechnologySerializer(read_only=True)
+    images = HouseImageSerializer(many=True, required=False)
+    interior_images = HouseInteriorImageSerializer(many=True, required=False)
+    facade_images = HouseFacadeImageSerializer(many=True, required=False)
+    layout_images = HouseLayoutImageSerializer(many=True, required=False)
+    construction_technology = ConstructionTechnologySerializer(read_only=True, required=False)
     category = HouseCategorySerializer(read_only=True)
     finishing_options = FinishingOptionSerializer(many=True, read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
@@ -86,15 +118,16 @@ class HouseSerializer(serializers.ModelSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
-        if images_data is not None:
 
+        instance.save()
+
+
+        if images_data is not None:
             instance.images.all().delete()
 
 
             for image_data in images_data:
                 HouseImage.objects.create(house=instance, **image_data)
-
         return instance
 
 
@@ -102,7 +135,6 @@ class FilterOptionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = FilterOption
         fields = '__all__'
-
 
 
 class ReviewSerializer(serializers.ModelSerializer):

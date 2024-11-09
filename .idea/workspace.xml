@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="added logic for answering user questions, sending the answer to the user's mail">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="add post-method for House">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
@@ -140,7 +141,10 @@
       <workItem from="1730802510509" duration="9009000" />
       <workItem from="1730904715447" duration="13034000" />
       <workItem from="1730973282334" duration="691000" />
-      <workItem from="1730987740088" duration="11207000" />
+      <workItem from="1730987740088" duration="11874000" />
+      <workItem from="1731066911701" duration="613000" />
+      <workItem from="1731132836955" duration="6000" />
+      <workItem from="1731138705111" duration="25812000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -246,7 +250,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730919997645</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="add post-method for House">
+      <option name="closed" value="true" />
+      <created>1731002776943</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1731002776943</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -276,6 +288,7 @@
     <MESSAGE value="added service for admin authorization using JWT tokens" />
     <MESSAGE value="edit logic info reviews" />
     <MESSAGE value="added logic for answering user questions, sending the answer to the user's mail" />
-    <option name="LAST_COMMIT_MESSAGE" value="added logic for answering user questions, sending the answer to the user's mail" />
+    <MESSAGE value="add post-method for House" />
+    <option name="LAST_COMMIT_MESSAGE" value="add post-method for House" />
   </component>
 </project>
