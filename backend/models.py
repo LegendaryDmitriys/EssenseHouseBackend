@@ -34,6 +34,7 @@ class ConstructionTechnology(models.Model):
     def __str__(self):
         return self.name
 
+
 class House(models.Model):
     BESTSELLER_CHOICES = [
         ('Акция', 'Акция'),
@@ -69,38 +70,17 @@ class House(models.Model):
     category = models.ForeignKey(HouseCategory, on_delete=models.CASCADE, related_name='houses')
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
     finishing_options = models.ManyToManyField('FinishingOption', through='HouseFinishing', related_name='houses')
+    images = models.ManyToManyField('Image', related_name='houses', blank=True)
+    interior_images = models.ManyToManyField('Image', related_name='interior_houses', blank=True)
+    facade_images = models.ManyToManyField('Image', related_name='facade_houses', blank=True)
+    layout_images = models.ManyToManyField('Image', related_name='layout_houses', blank=True)
 
     def __str__(self):
         return f"Дом {self.pk} - {self.price} руб."
 
 
-class HouseImage(models.Model):
-    house = models.ForeignKey(House, related_name='images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='houses/')
-
-    def __str__(self):
-        return f"Изображение для дома {self.house.pk}"
-
-class HouseInteriorImage(models.Model):
-    house = models.ForeignKey(House, related_name='interior_images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='houses/interior/')
-
-    def __str__(self):
-        return f"Изображение интерьера для дома {self.house.pk}"
-
-class HouseFacadeImage(models.Model):
-    house = models.ForeignKey(House, related_name='facade_images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='houses/facades/')
-
-    def __str__(self):
-        return f"Изображение фасада для дома {self.house.pk}"
-
-class HouseLayoutImage(models.Model):
-    house = models.ForeignKey(House, related_name='layout_images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='houses/layouts/')
-
-    def __str__(self):
-        return f"Изображение планировки для дома {self.house.pk}"
+class Image(models.Model):
+    image = models.ImageField(upload_to='house_images/')
 
 
 class FinishingOption(models.Model):

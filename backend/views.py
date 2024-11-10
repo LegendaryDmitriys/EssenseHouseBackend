@@ -1,12 +1,14 @@
 import django_filters
-from django.shortcuts import get_object_or_404
+from django.http import JsonResponse, Http404
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 
 from .models import House, ConstructionTechnology, HouseCategory, FinishingOption, Document, Review, Order, \
-    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, HouseImage
+    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, Image
+
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, HouseCategorySerializer, \
     FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, \
     PurchasedHouseSerializer, FilterOptionsSerializer, UserQuestionHouseSerializer, UserQuestionSerializer
@@ -96,6 +98,7 @@ class HouseListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get_house_by_id(self, id):
         try:
@@ -316,24 +319,102 @@ class FilterOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FilterOption.objects.all()
     serializer_class = FilterOptionsSerializer
 
-@api_view(['POST'])
-def add_images_to_house(request, house_id):
-    house = get_object_or_404(House, id=house_id)
-    images = request.FILES.getlist('houses')
 
-    if not images:
-        raise ValidationError({"error": "No images uploaded."})
+class CreateHouseAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
 
-    for img in images:
-        HouseImage.objects.create(house=house, image=img)
+    def post(self, request, format=None):
+        serializer = HouseSerializer(data=request.data)
+        if serializer.is_valid():
+            house = serializer.save()
 
-    return Response({"message": "Images added successfully."}, status=status.HTTP_201_CREATED)
+            for file in request.FILES.getlist('images'):
+                img = Image(image=file)
+                img.save()
+                house.images.add(img)
 
-@api_view(['DELETE'])
-def delete_image(request, image_id):
-    try:
-        image = HouseImage.objects.get(id=image_id)
-        image.delete()
-        return Response({"message": "Image deleted successfully."}, status=status.HTTP_200_OK)
-    except HouseImage.DoesNotExist:
-        return Response({"error": "Image not found."}, status=status.HTTP_404_NOT_FOUND)
+            for file in request.FILES.getlist('interior_images'):
+                img = Image(image=file)
+                img.save()
+                house.interior_images.add(img)
+
+            for file in request.FILES.getlist('facade_images'):
+                img = Image(image=file)
+                img.save()
+                house.facade_images.add(img)
+
+            for file in request.FILES.getlist('layout_images'):
+                img = Image(image=file)
+                img.save()
+                house.layout_images.add(img)
+
+            return Response({"message": "Дом успешно создан"}, status=201)
+        return Response(serializer.errors, status=400)
+
+class UpdateHouseAPIView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def patch(self, request, house_id, format=None):
+        try:
+            house = House.objects.get(id=house_id)
+        except House.DoesNotExist:
+            return Response({"message": "Дом не найден"}, status=404)
+
+
+        serializer = HouseSerializer(house, data=request.data, partial=True)
+        if serializer.is_valid():
+            house = serializer.save()
+
+            if 'remove_images' in request.data:
+                remove_images = request.data.getlist('remove_images')
+                for image_id in remove_images:
+                    try:
+                        image = Image.objects.get(id=image_id)
+                        house.images.remove(image)
+                        image.delete()
+                    except Image.DoesNotExist:
+                        continue
+
+            for file in request.FILES.getlist('images'):
+                img = Image(image=file)
+                img.save()
+                house.images.add(img)
+
+            for file in request.FILES.getlist('interior_images'):
+                img = Image(image=file)
+                img.save()
+                house.interior_images.add(img)
+
+            for file in request.FILES.getlist('facade_images'):
+                img = Image(image=file)
+                img.save()
+                house.facade_images.add(img)
+
+            for file in request.FILES.getlist('layout_images'):
+                img = Image(image=file)
+                img.save()
+                house.layout_images.add(img)
+
+            return Response({"message": "Дом успешно обновлен"}, status=200)
+
+        return Response(serializer.errors, status=400)
+
+
+class DeleteImageView(APIView):
+    def delete(self, request, house_id, image_id):
+        try:
+            house = House.objects.get(id=house_id)
+
+
+            image = Image.objects.get(id=image_id, house=house)
+
+            image.delete()
+
+
+            return JsonResponse({'message': 'Image deleted successfully'}, status=200)
+
+        except House.DoesNotExist:
+            raise Http404('House not found')
+
+        except Image.DoesNotExist:
+            raise Http404('Image not found')

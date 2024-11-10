@@ -9,7 +9,7 @@ from backend.views import HouseListView, HouseDetailView, ConstructionTechnology
     ReviewsDetailView, OrderListView, OrderDetailView, \
     FilteredHouseListView, PurchaseHouseListView, PurchaseHouseDetailView, FilterOptionListView, \
     UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView, \
-    HouseCategoryDetailByIdView, FilterOptionDetailView, add_images_to_house, delete_image
+    HouseCategoryDetailByIdView, FilterOptionDetailView, CreateHouseAPIView, UpdateHouseAPIView, DeleteImageView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -38,8 +38,10 @@ urlpatterns = [
     path('user-question/house/<int:pk>/', UserQuestionHouseDetailView.as_view(), name='user_question_house_detail'),
     path('auth/', include('auth_app.urls')),
     path('mail/', include('mail_service.urls')),
-    path('houses/<int:house_id>/images/', add_images_to_house, name='add_images_to_house'),
-    path('images/<int:image_id>/delete/', delete_image, name='delete_image'),
+    path('houses/create', CreateHouseAPIView.as_view(), name='house_list-create'),
+    path('houses/update/<int:house_id>/', UpdateHouseAPIView.as_view(), name='update_house'),
+    path('houses/<int:house_id>/images/<int:image_id>/delete/', DeleteImageView.as_view(),
+                       name='delete_image'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

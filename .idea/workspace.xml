@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="add post-method for House">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="the logic for transferring data to the frontend has been reworked">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
@@ -144,7 +144,8 @@
       <workItem from="1730987740088" duration="11874000" />
       <workItem from="1731066911701" duration="613000" />
       <workItem from="1731132836955" duration="6000" />
-      <workItem from="1731138705111" duration="25812000" />
+      <workItem from="1731138705111" duration="25929000" />
+      <workItem from="1731245140119" duration="16062000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -258,7 +259,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731002776943</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="the logic for transferring data to the frontend has been reworked">
+      <option name="closed" value="true" />
+      <created>1731174146455</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1731174146455</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -289,6 +298,7 @@
     <MESSAGE value="edit logic info reviews" />
     <MESSAGE value="added logic for answering user questions, sending the answer to the user's mail" />
     <MESSAGE value="add post-method for House" />
-    <option name="LAST_COMMIT_MESSAGE" value="add post-method for House" />
+    <MESSAGE value="the logic for transferring data to the frontend has been reworked" />
+    <option name="LAST_COMMIT_MESSAGE" value="the logic for transferring data to the frontend has been reworked" />
   </component>
 </project>

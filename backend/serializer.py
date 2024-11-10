@@ -4,9 +4,9 @@ from rest_framework import serializers
 import requests
 from django.core.exceptions import ValidationError
 
-from .models import House, ConstructionTechnology, HouseCategory, HouseImage, HouseInteriorImage, \
-    HouseFacadeImage, HouseLayoutImage, FinishingOption, Document, Review, Order, PurchasedHouse, \
-    FilterOption, UserQuestionHouse, UserQuestion, HouseFinishing
+from .models import House, ConstructionTechnology, HouseCategory \
+    , FinishingOption, Document, Review, Order, PurchasedHouse, \
+    FilterOption, UserQuestionHouse, UserQuestion, HouseFinishing, Image
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -24,37 +24,7 @@ class HouseCategorySerializer(serializers.ModelSerializer):
 
     def get_random_image_url(self, obj):
         return obj.get_random_image()
-class HouseImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HouseImage
-        fields = ['id', 'image']
-        extra_kwargs = {
-            'image': {'required': False}  # Сделаем поле 'image' необязательным
-        }
 
-class HouseInteriorImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HouseInteriorImage
-        fields = ['id', 'image']
-        extra_kwargs = {
-            'image': {'required': False}  # Сделаем поле 'image' необязательным
-        }
-
-class HouseFacadeImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HouseFacadeImage
-        fields = ['id', 'image']
-        extra_kwargs = {
-            'image': {'required': False}  # Сделаем поле 'image' необязательным
-        }
-
-class HouseLayoutImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HouseLayoutImage
-        fields = ['id', 'image']
-        extra_kwargs = {
-            'image': {'required': False}  # Сделаем поле 'image' необязательным
-        }
 
 class FinishingOptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,45 +61,55 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ['id', 'file', 'title', 'size']
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['image']
+
+
 class HouseSerializer(serializers.ModelSerializer):
-    images = HouseImageSerializer(many=True, required=False)
-    interior_images = HouseInteriorImageSerializer(many=True, required=False)
-    facade_images = HouseFacadeImageSerializer(many=True, required=False)
-    layout_images = HouseLayoutImageSerializer(many=True, required=False)
-    construction_technology = ConstructionTechnologySerializer(read_only=True, required=False)
-    category = HouseCategorySerializer(read_only=True)
+
+    images = ImageSerializer(many=True, required=False)
+    interior_images = ImageSerializer(many=True, required=False)
+    facade_images = ImageSerializer(many=True, required=False)
+    layout_images = ImageSerializer(many=True, required=False)
+
+    construction_technology = serializers.PrimaryKeyRelatedField(
+        queryset=ConstructionTechnology.objects.all(), required=True
+    )
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=HouseCategory.objects.all(), required=True
+    )
     finishing_options = FinishingOptionSerializer(many=True, read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = House
         fields = '__all__'
 
-
     def create(self, validated_data):
-        images_data = validated_data.pop('images')
+
+        images_data = validated_data.pop('images', [])
+        interior_images_data = validated_data.pop('interior_images', [])
+        facade_images_data = validated_data.pop('facade_images', [])
+        layout_images_data = validated_data.pop('layout_images', [])
+
         house = House.objects.create(**validated_data)
+
         for image_data in images_data:
-            HouseImage.objects.create(house=house, **image_data)
+            house.images.add(Image.objects.create(image=image_data['image']))
+
+        for image_data in interior_images_data:
+            house.interior_images.add(Image.objects.create(image=image_data['image']))
+
+        for image_data in facade_images_data:
+            house.facade_images.add(Image.objects.create(image=image_data['image']))
+
+        for image_data in layout_images_data:
+            house.layout_images.add(Image.objects.create(image=image_data['image']))
+
         return house
-
-    def update(self, instance, validated_data):
-        images_data = validated_data.pop('images', None)
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
-
-
-        if images_data is not None:
-            instance.images.all().delete()
-
-
-            for image_data in images_data:
-                HouseImage.objects.create(house=instance, **image_data)
-        return instance
-
 
 class FilterOptionsSerializer(serializers.ModelSerializer):
     class Meta:
