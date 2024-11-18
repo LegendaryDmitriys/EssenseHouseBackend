@@ -64,7 +64,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ['image']
+        fields = ['id', 'image']
 
 
 class HouseSerializer(serializers.ModelSerializer):
@@ -75,10 +75,18 @@ class HouseSerializer(serializers.ModelSerializer):
     layout_images = ImageSerializer(many=True, required=False)
 
     construction_technology = serializers.PrimaryKeyRelatedField(
-        queryset=ConstructionTechnology.objects.all(), required=True
+        queryset=ConstructionTechnology.objects.all(), write_only=True
     )
     category = serializers.PrimaryKeyRelatedField(
-        queryset=HouseCategory.objects.all(), required=True
+        queryset=HouseCategory.objects.all(), write_only=True
+    )
+
+
+    construction_technology_details = ConstructionTechnologySerializer(
+        read_only=True, source='construction_technology'
+    )
+    category_details = HouseCategorySerializer(
+        read_only=True, source='category'
     )
     finishing_options = FinishingOptionSerializer(many=True, read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)

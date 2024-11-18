@@ -1,10 +1,18 @@
 import django_filters
 from django.http import JsonResponse, Http404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import generics
-from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
+
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from django.core.cache import cache
+
+import openpyxl
+from django.http import HttpResponse
+
 
 from .models import House, ConstructionTechnology, HouseCategory, FinishingOption, Document, Review, Order, \
     UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, Image
@@ -75,8 +83,16 @@ class DynamicHouseFilter(django_filters.FilterSet):
         model = House
         fields = {}
 
+
+class HousePagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class HouseListView(APIView):
     serializer_class = HouseSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    pagination_class = HousePagination
 
     def get(self, request, id=None):
         if id is not None:
@@ -88,8 +104,11 @@ class HouseListView(APIView):
 
         houses = self.filter_houses(filters, category_slug, sort_by)
 
-        serializer = self.serializer_class(houses, many=True)
-        return Response(serializer.data)
+        paginator = self.pagination_class()
+        paginated_houses = paginator.paginate_queryset(houses, request)
+        serializer = self.serializer_class(paginated_houses, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -153,10 +172,26 @@ class HouseListView(APIView):
         return house_filter.qs
 
 
+
+
+
 class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = House.objects.all()
+    queryset = House.objects.prefetch_related(
+        'category',
+        'construction_technology',
+        'images',
+        'interior_images',
+        'facade_images',
+        'layout_images',
+        'finishing_options',
+        'documents'
+    ).all()
     serializer_class = HouseSerializer
 
+    def get(self, request, *args, **kwargs):
+        house = self.get_object()  # Извлекаем объект напрямую из базы
+        house_data = HouseSerializer(house).data  # Сериализуем данные
+        return Response(house_data)
 
 
 class FilteredHouseListView(APIView):
@@ -175,6 +210,13 @@ class ConstructionTechnologyListView(generics.ListCreateAPIView):
     queryset = ConstructionTechnology.objects.all()
     serializer_class = ConstructionTechnologySerializer
 
+    def get_queryset(self):
+        options = cache.get('construction_technologies')
+        if not options:
+            options = super().get_queryset()
+            cache.set('construction_technologies', options, timeout=60 * 60)
+        return options
+
 
 class ConstructionTechnologyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ConstructionTechnology.objects.all()
@@ -183,9 +225,15 @@ class ConstructionTechnologyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class HouseCategoryListView(generics.ListCreateAPIView):
-    queryset = HouseCategory.objects.all()
+    queryset = HouseCategory.objects.prefetch_related('houses')
     serializer_class = HouseCategorySerializer
 
+    def get_queryset(self):
+        categories = cache.get('house_categories')
+        if not categories:
+            categories = super().get_queryset()
+            cache.set('house_categories', categories, timeout=60 * 60)
+        return categories
 
 class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = HouseCategory.objects.all()
@@ -277,15 +325,13 @@ class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserQuestionHouseSerializer
 
 
-class UserQuestionListView(generics.ListCreateAPIView):
+class UserQuestionListView(ListCreateAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    @method_decorator(cache_page(60 * 15))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -300,9 +346,15 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
     def get_queryset(self):
         construction_status = self.request.query_params.get('construction_status', None)
 
+        queryset = PurchasedHouse.objects.all().select_related('house')
+
+
+        queryset = queryset.prefetch_related('house__images', 'house__interior_images', 'house__facade_images', 'house__layout_images',
+                                             'house__category', 'house__construction_technology', 'house__documents', 'house__finishing_options')
+
         if construction_status:
-            return PurchasedHouse.objects.filter(construction_status=construction_status)
-        return PurchasedHouse.objects.all()
+            return queryset.filter(construction_status=construction_status)
+        return queryset
 
 
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -401,20 +453,159 @@ class UpdateHouseAPIView(APIView):
 
 
 class DeleteImageView(APIView):
-    def delete(self, request, house_id, image_id):
-        try:
-            house = House.objects.get(id=house_id)
+    def delete(self, request, house_id, image_id, category):
+        house = get_object_or_404(House, id=house_id)
+        image = get_object_or_404(Image, id=image_id)
 
 
-            image = Image.objects.get(id=image_id, house=house)
+        if category == 'images':
+            if image in house.images.all():
+                house.images.remove(image)
+        elif category == 'interior_images':
+            if image in house.interior_images.all():
+                house.interior_images.remove(image)
+        elif category == 'facade_images':
+            if image in house.facade_images.all():
+                house.facade_images.remove(image)
+        elif category == 'layout_images':
+            if image in house.layout_images.all():
+                house.layout_images.remove(image)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid category'}, status=400)
 
+
+        if image.houses.count() == 0:
             image.delete()
 
+        return JsonResponse({'status': 'success', 'message': 'Image deleted successfully'})
 
-            return JsonResponse({'message': 'Image deleted successfully'}, status=200)
 
-        except House.DoesNotExist:
-            raise Http404('House not found')
+def export_orders_to_excel(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Orders"
 
-        except Image.DoesNotExist:
-            raise Http404('Image not found')
+    headers = [
+        "ID", "Название дома", "Покупатель", "Телефон", "Email",
+        "Место строительства", "Отделка", "Дата заказа", "Статус"
+    ]
+    ws.append(headers)
+
+    orders = Order.objects.all()
+
+    for order in orders:
+        row = [
+            order.id,
+            order.house.title if order.house else "Не указано",
+            order.name,
+            order.phone,
+            order.email,
+            order.construction_place,
+            order.finishing_option.title if order.finishing_option else "Не указано",
+            order.data_created.strftime('%Y-%m-%d'),  # Форматируем дату
+            order.status
+        ]
+        ws.append(row)
+
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
+
+    wb.save(response)
+
+    return response
+
+def export_purchased_houses(request):
+    purchased_houses = PurchasedHouse.objects.all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Purchased Houses"
+
+    ws.append([
+        "Дом",
+        "Дата покупки",
+        "Покупатель",
+        "Телефон",
+        "Почта",
+        "Статус строительства",
+        "Широта",
+        "Долгота",
+    ])
+
+    for house in purchased_houses:
+        ws.append([
+            house.house.title,
+            house.purchase_date,
+            house.buyer_name,
+            house.buyer_phone,
+            house.buyer_email,
+            house.construction_status,
+            house.latitude if house.latitude else "Не указано",
+            house.longitude if house.longitude else "Не указано",
+        ])
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="purchased_houses.xlsx"'
+
+    wb.save(response)
+    return response
+
+def export_user_questions_and_houses(request):
+    user_questions = UserQuestion.objects.all()
+    user_question_houses = UserQuestionHouse.objects.all()
+
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "User Questions and Houses"
+
+    ws.append([
+        "Имя",
+        "Телефон",
+        "Дата создания",
+        "Статус"
+    ])
+
+    for question in user_questions:
+        ws.append([
+            question.name,
+            question.phone,
+            question.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            question.status,
+        ])
+
+
+    ws.append([])
+
+    ws.append([
+        "Имя",
+        "Телефон",
+        "Email",
+        "Дом",
+        "Вопрос",
+        "Дата создания",
+        "Статус"
+    ])
+
+    for question_house in user_question_houses:
+        ws.append([
+            question_house.name,
+            question_house.phone,
+            question_house.email,
+            question_house.house.title,
+            question_house.question,
+            question_house.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            question_house.status,
+        ])
+
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="user_questions_and_houses.xlsx"'
+
+    wb.save(response)
+    return response

@@ -4,12 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="the logic for transferring data to the frontend has been reworked">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="refact logic table">
+      <change afterPath="$PROJECT_DIR$/EssenseHouse/locustfile.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mail_service/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mail_service/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +72,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -145,7 +150,18 @@
       <workItem from="1731066911701" duration="613000" />
       <workItem from="1731132836955" duration="6000" />
       <workItem from="1731138705111" duration="25929000" />
-      <workItem from="1731245140119" duration="16062000" />
+      <workItem from="1731245140119" duration="16261000" />
+      <workItem from="1731430330076" duration="7288000" />
+      <workItem from="1731516770430" duration="1670000" />
+      <workItem from="1731573152335" duration="8011000" />
+      <workItem from="1731594049866" duration="12957000" />
+      <workItem from="1731650928646" duration="1790000" />
+      <workItem from="1731653295501" duration="208000" />
+      <workItem from="1731670926288" duration="584000" />
+      <workItem from="1731672085197" duration="1982000" />
+      <workItem from="1731674159641" duration="456000" />
+      <workItem from="1731674691973" duration="2750000" />
+      <workItem from="1731944382661" duration="9476000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -267,7 +283,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731174146455</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="refact logic table">
+      <option name="closed" value="true" />
+      <created>1731267084739</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1731267084739</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -299,6 +323,7 @@
     <MESSAGE value="added logic for answering user questions, sending the answer to the user's mail" />
     <MESSAGE value="add post-method for House" />
     <MESSAGE value="the logic for transferring data to the frontend has been reworked" />
-    <option name="LAST_COMMIT_MESSAGE" value="the logic for transferring data to the frontend has been reworked" />
+    <MESSAGE value="refact logic table" />
+    <option name="LAST_COMMIT_MESSAGE" value="refact logic table" />
   </component>
 </project>

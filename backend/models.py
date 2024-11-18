@@ -9,7 +9,14 @@ class HouseCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     short_description = models.TextField(null=True, blank=True)
     long_description = models.TextField(null=True, blank=True)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, db_index=True)
+
+    class Meta:
+        verbose_name = "Категория дома"
+        verbose_name_plural = "Категории домов"
+        indexes = [
+            models.Index(fields=['name']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -20,12 +27,8 @@ class HouseCategory(models.Model):
         return self.name
 
     def get_random_image(self):
-        first_house_with_images = self.houses.annotate(num_images=Count('images')).filter(num_images__gt=0).first()
-        if first_house_with_images:
-            first_image = first_house_with_images.images.first()
-            return first_image.image.url if first_image else None
-        return None
-
+        house_with_images = self.houses.annotate(num_images=Count('images')).filter(num_images__gt=0).first()
+        return house_with_images.images.first().image.url if house_with_images else None
 
 
 class ConstructionTechnology(models.Model):
@@ -46,30 +49,30 @@ class House(models.Model):
         ('Коммерческая недвижимость', 'Коммерческая недвижимость'),
     ]
 
-    title = models.CharField(max_length=100, unique=False)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    title = models.CharField(max_length=100, unique=False, db_index=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
     old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
                                     verbose_name="Старая цена")
     discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
                                    verbose_name="Скидка")
-    new = models.BooleanField(default=True, verbose_name="Новый продукт")
-    best_seller = models.CharField(max_length=10, choices=BESTSELLER_CHOICES, blank=True, null=True)
-    area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Площадь, м²")
-    floors = models.PositiveIntegerField()
-    rooms = models.PositiveIntegerField()
-    living_area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Жилая площадь, м²")
-    kitchen_area = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
-    bedrooms = models.PositiveIntegerField()
-    bathrooms = models.PositiveIntegerField(verbose_name="Количество санузлов", null=True, blank=True)
+    new = models.BooleanField(default=True, verbose_name="Новый продукт", db_index=True)
+    best_seller = models.CharField(max_length=10, choices=BESTSELLER_CHOICES, blank=True, null=True, db_index=True)
+    area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Площадь, м²", db_index=True)
+    floors = models.PositiveIntegerField(verbose_name="Количество этажей", db_index=True)
+    rooms = models.PositiveIntegerField(verbose_name="Количество комнат", db_index=True)
+    living_area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Жилая площадь, м²", db_index=True)
+    kitchen_area = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name="Площадь кухни",db_index=True)
+    bedrooms = models.PositiveIntegerField(verbose_name="Количество спален", db_index=True)
+    bathrooms = models.PositiveIntegerField(verbose_name="Количество санузлов", null=True, blank=True, db_index=True)
     garage = models.BooleanField(default=False)
     garage_capacity = models.PositiveIntegerField(verbose_name="Гараж (кол-во машин)", null=True, blank=True)
     purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES)
     warranty = models.PositiveIntegerField(verbose_name="Гарантия, лет", null=True, blank=True)
     construction_time = models.PositiveIntegerField(verbose_name="Срок строительства, дней", null=True, blank=True)
-    construction_technology = models.ForeignKey(ConstructionTechnology, on_delete=models.CASCADE)
-    category = models.ForeignKey(HouseCategory, on_delete=models.CASCADE, related_name='houses')
+    construction_technology = models.ForeignKey(ConstructionTechnology, on_delete=models.CASCADE, db_index=True)
+    category = models.ForeignKey(HouseCategory, on_delete=models.CASCADE, related_name='houses', db_index=True)
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
-    finishing_options = models.ManyToManyField('FinishingOption', through='HouseFinishing', related_name='houses')
+    finishing_options = models.ManyToManyField('FinishingOption', through='HouseFinishing', related_name='houses', db_index=True)
     images = models.ManyToManyField('Image', related_name='houses', blank=True)
     interior_images = models.ManyToManyField('Image', related_name='interior_houses', blank=True)
     facade_images = models.ManyToManyField('Image', related_name='facade_houses', blank=True)
@@ -167,7 +170,7 @@ class Order(models.Model):
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
-    house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Выбранный дом")
+    house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Выбранный дом",db_index=True)
     finishing_option = models.ForeignKey('FinishingOption', on_delete=models.CASCADE, null=True, blank=True)
     construction_place = models.CharField(max_length=255)
     message = models.TextField()
@@ -221,7 +224,7 @@ class PurchasedHouse(models.Model):
         ('not_started', 'Не начато'),
     ]
 
-    house = models.ForeignKey(House, on_delete=models.CASCADE, verbose_name="Купленный дом")
+    house = models.ForeignKey(House, on_delete=models.CASCADE, verbose_name="Купленный дом",db_index=True)
     purchase_date = models.DateField(verbose_name="Дата покупки")
     buyer_name = models.CharField(max_length=255, verbose_name="Имя покупателя")
     buyer_phone = models.CharField(max_length=20, verbose_name="Номер телефона покупателя")

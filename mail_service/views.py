@@ -61,3 +61,4 @@ def send_answer(request):
             return JsonResponse({"message": "Не удалось отправить ответ.", "error": "Вопрос не найден."}, status=404)
         except Exception as e:
             return JsonResponse({"message": "Не удалось отправить ответ.", "error": str(e)}, status=500)
+

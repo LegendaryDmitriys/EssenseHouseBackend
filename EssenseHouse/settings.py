@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'backend',
     'auth_app',
     'debug_toolbar',
-    'django_filters'
+    'django_filters',
+    'silk'
 ]
 
 REST_FRAMEWORK = {
@@ -77,6 +78,7 @@ INTERNAL_IPS = [
 ]
 
 MIDDLEWARE = [
+    'silk.middleware.SilkyMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -128,6 +130,10 @@ DATABASES = {
         'PASSWORD': 'admin',
         'HOST': 'localhost',
         'PORT': '5432',
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+                'client_encoding': 'UTF8',
+            },
     }
 }
 
@@ -237,3 +243,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'dimaklockov24@gmail.com'
 EMAIL_HOST_PASSWORD = 'myyi tygb jqto vwxr'
+
+
+CACHES = {
+    'default': {
+         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+         "LOCATION": "unique-snowflake",
+    }
+}
