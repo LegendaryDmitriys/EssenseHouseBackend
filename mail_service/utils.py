@@ -51,7 +51,7 @@ def fetch_emails(category='inbox'):
 
     fetched_emails = []
 
-    for email_id in email_ids[-10:]:  # Получаем последние 10 писем
+    for email_id in email_ids[-10:]:
         print(f"Fetching email ID: {email_id.decode('utf-8')}")
         _, msg_data = mail.fetch(email_id, '(RFC822)')
         for response_part in msg_data:

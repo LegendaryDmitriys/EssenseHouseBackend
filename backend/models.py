@@ -51,10 +51,8 @@ class House(models.Model):
 
     title = models.CharField(max_length=100, unique=False, db_index=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
-    old_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
-                                    verbose_name="Старая цена")
-    discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
-                                   verbose_name="Скидка")
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
+                                              verbose_name="Скидка (%)")
     new = models.BooleanField(default=True, verbose_name="Новый продукт", db_index=True)
     best_seller = models.CharField(max_length=10, choices=BESTSELLER_CHOICES, blank=True, null=True, db_index=True)
     area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Площадь, м²", db_index=True)
@@ -64,8 +62,7 @@ class House(models.Model):
     kitchen_area = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name="Площадь кухни",db_index=True)
     bedrooms = models.PositiveIntegerField(verbose_name="Количество спален", db_index=True)
     bathrooms = models.PositiveIntegerField(verbose_name="Количество санузлов", null=True, blank=True, db_index=True)
-    garage = models.BooleanField(default=False)
-    garage_capacity = models.PositiveIntegerField(verbose_name="Гараж (кол-во машин)", null=True, blank=True)
+    garage = models.IntegerField(verbose_name="Гараж (кол-во машин)", null=True, blank=True)
     purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES)
     warranty = models.PositiveIntegerField(verbose_name="Гарантия, лет", null=True, blank=True)
     construction_time = models.PositiveIntegerField(verbose_name="Срок строительства, дней", null=True, blank=True)
@@ -77,9 +74,22 @@ class House(models.Model):
     interior_images = models.ManyToManyField('Image', related_name='interior_houses', blank=True)
     facade_images = models.ManyToManyField('Image', related_name='facade_houses', blank=True)
     layout_images = models.ManyToManyField('Image', related_name='layout_houses', blank=True)
+    documents = models.ManyToManyField('Document', related_name='houses', blank=True)
 
     def __str__(self):
         return f"Дом {self.pk} - {self.price} руб."
+
+    @property
+    def new_price(self):
+        if self.discount_percentage:
+            return self.price * (1 - self.discount_percentage / 100)
+        return None
+
+    @property
+    def discount(self):
+        if self.discount_percentage:
+            return self.discount_percentage
+        return None
 
 
 class Image(models.Model):
@@ -104,7 +114,6 @@ class HouseFinishing(models.Model):
         return f"Отделка {self.finishing_option.title} для дома {self.house.title}"
 
 class Document(models.Model):
-    house = models.ForeignKey('House', on_delete=models.CASCADE, related_name='documents')
     title = models.CharField(max_length=100, verbose_name='Название документа', blank=True)
     file = models.FileField(upload_to='documents/', verbose_name='Файл')
 
@@ -116,6 +125,7 @@ class Document(models.Model):
         if not self.title:
             self.title = os.path.basename(self.file.name).rsplit('.', 1)[0]
         super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.title} - {self.file.size} байт"
 

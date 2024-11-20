@@ -46,9 +46,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'backend',
     'auth_app',
-    'debug_toolbar',
-    'django_filters',
-    'silk'
+    # 'debug_toolbar',
+    'django_filters'
 ]
 
 REST_FRAMEWORK = {
@@ -78,8 +77,7 @@ INTERNAL_IPS = [
 ]
 
 MIDDLEWARE = [
-    'silk.middleware.SilkyMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -118,6 +116,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EssenseHouse.wsgi.application'
 
+AUTH_USER_MODEL = 'auth_app.AdminUser'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -193,6 +192,8 @@ class CORSStaticFilesHandler(handlers.StaticFilesHandler):
         response = super().serve(request)
         response['Access-Control-Allow-Origin'] = '*'
         return response
+
+
 
 handlers.StaticFilesHandler = CORSStaticFilesHandler
 

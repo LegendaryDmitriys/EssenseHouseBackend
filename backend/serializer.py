@@ -68,11 +68,21 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class HouseSerializer(serializers.ModelSerializer):
-
     images = ImageSerializer(many=True, required=False)
     interior_images = ImageSerializer(many=True, required=False)
     facade_images = ImageSerializer(many=True, required=False)
     layout_images = ImageSerializer(many=True, required=False)
+    documents = DocumentSerializer(many=True, required=False)
+    new_price = serializers.SerializerMethodField()
+    discount = serializers.SerializerMethodField()
+    garage = serializers.IntegerField(allow_null=True, required=False)
+
+    def get_new_price(self, obj):
+        return round(obj.new_price) if obj.new_price else None
+
+    def get_discount(self, obj):
+        return obj.discount
+
 
     construction_technology = serializers.PrimaryKeyRelatedField(
         queryset=ConstructionTechnology.objects.all(), write_only=True
@@ -80,7 +90,9 @@ class HouseSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(
         queryset=HouseCategory.objects.all(), write_only=True
     )
-
+    finishing_options = serializers.PrimaryKeyRelatedField(
+        queryset=FinishingOption.objects.all(), many=True, write_only=True
+    )
 
     construction_technology_details = ConstructionTechnologySerializer(
         read_only=True, source='construction_technology'
@@ -88,8 +100,9 @@ class HouseSerializer(serializers.ModelSerializer):
     category_details = HouseCategorySerializer(
         read_only=True, source='category'
     )
-    finishing_options = FinishingOptionSerializer(many=True, read_only=True)
-    documents = DocumentSerializer(many=True, read_only=True)
+    finishing_options_details = FinishingOptionSerializer(
+        read_only=True, many=True, source='finishing_options'
+    )
 
 
     class Meta:
@@ -97,11 +110,12 @@ class HouseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-
         images_data = validated_data.pop('images', [])
         interior_images_data = validated_data.pop('interior_images', [])
         facade_images_data = validated_data.pop('facade_images', [])
         layout_images_data = validated_data.pop('layout_images', [])
+        finishing_options_data = validated_data.pop('finishing_options', [])
+        documents_data = validated_data.pop('documents', [])
 
         house = House.objects.create(**validated_data)
 
@@ -117,6 +131,11 @@ class HouseSerializer(serializers.ModelSerializer):
         for image_data in layout_images_data:
             house.layout_images.add(Image.objects.create(image=image_data['image']))
 
+        house.finishing_options.set(finishing_options_data)
+
+        for document_data in documents_data:
+            Document.objects.create(house=house, **document_data)
+
         return house
 
 class FilterOptionsSerializer(serializers.ModelSerializer):
@@ -125,7 +144,27 @@ class FilterOptionsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+def validate_file_type(value):
+    allowed_mime_types = [
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+    ]
+
+    if value.content_type not in allowed_mime_types:
+        raise ValidationError("Разрешены только файлы Word, Excel или изображения (JPG, PNG, GIF).")
+
+    allowed_extensions = ['.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png', '.gif']
+    if not any(value.name.endswith(ext) for ext in allowed_extensions):
+        raise ValidationError("Разрешены только файлы с расширениями: .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .gif.")
+
+
 class ReviewSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(validators=[validate_file_type], required=False)
     file_name = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
     class Meta:
@@ -141,8 +180,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    house = serializers.SerializerMethodField(read_only=True)
+    house = serializers.PrimaryKeyRelatedField(queryset=House.objects.all(), required=True)
     finishing_option = serializers.SerializerMethodField(read_only=True)
+
+    house_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -152,10 +193,10 @@ class OrderSerializer(serializers.ModelSerializer):
             'phone': {'required': False},
             'construction_place': {'required': False},
             'message': {'required': False},
-            'house': {'required': False},
+            'house': {'required': True},
         }
 
-    def get_house(self, obj):
+    def get_house_details(self, obj):
         return {
             "id": obj.house.id,
             "title": obj.house.title,

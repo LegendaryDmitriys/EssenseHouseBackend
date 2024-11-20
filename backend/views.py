@@ -7,6 +7,7 @@ from rest_framework import generics
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.core.cache import cache
 
@@ -143,10 +144,6 @@ class HouseListView(APIView):
             filtered_houses = filtered_houses.order_by('price')
         elif sort_by == 'priceDesc':
             filtered_houses = filtered_houses.order_by('-price')
-        elif sort_by == 'popularityAsc':
-            filtered_houses = filtered_houses.order_by('popularity')
-        elif sort_by == 'popularityDesc':
-            filtered_houses = filtered_houses.order_by('-popularity')
 
         return filtered_houses
 
@@ -189,8 +186,8 @@ class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HouseSerializer
 
     def get(self, request, *args, **kwargs):
-        house = self.get_object()  # Извлекаем объект напрямую из базы
-        house_data = HouseSerializer(house).data  # Сериализуем данные
+        house = self.get_object()
+        house_data = HouseSerializer(house).data
         return Response(house_data)
 
 
@@ -228,12 +225,7 @@ class HouseCategoryListView(generics.ListCreateAPIView):
     queryset = HouseCategory.objects.prefetch_related('houses')
     serializer_class = HouseCategorySerializer
 
-    def get_queryset(self):
-        categories = cache.get('house_categories')
-        if not categories:
-            categories = super().get_queryset()
-            cache.set('house_categories', categories, timeout=60 * 60)
-        return categories
+
 
 class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = HouseCategory.objects.all()
@@ -247,13 +239,20 @@ class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         filters = request.query_params
         houses = filter_houses(filters, category=category)
 
-        serializer = HouseSerializer(houses, many=True)
-        return Response(serializer.data)
+        category_serializer = self.get_serializer(category)
+        houses_serializer = HouseSerializer(houses, many=True)
+
+        response_data = {
+            "category": category_serializer.data,
+            "houses": houses_serializer.data,
+        }
+        return Response(response_data)
 
 
 class HouseCategoryDetailByIdView(generics.RetrieveUpdateDestroyAPIView):
     queryset = HouseCategory.objects.all()
     serializer_class = HouseCategorySerializer
+    permission_classes = [IsAuthenticated]
 
 
 class FinishingOptionListView(generics.ListCreateAPIView):
@@ -264,7 +263,7 @@ class FinishingOptionListView(generics.ListCreateAPIView):
 class FinishingOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FinishingOption.objects.all()
     serializer_class = FinishingOptionSerializer
-
+    permission_classes = [IsAuthenticated]
 
 class DocumentListView(generics.ListCreateAPIView):
     queryset = Document.objects.all()
@@ -323,6 +322,7 @@ class UserQuestionHouseListView(generics.ListCreateAPIView):
 class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestionHouse.objects.all()
     serializer_class = UserQuestionHouseSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserQuestionListView(ListCreateAPIView):
@@ -337,11 +337,13 @@ class UserQuestionListView(ListCreateAPIView):
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class PurchaseHouseListView(generics.ListCreateAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
+
 
     def get_queryset(self):
         construction_status = self.request.query_params.get('construction_status', None)
@@ -360,6 +362,7 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class FilterOptionListView(generics.ListCreateAPIView):
@@ -370,9 +373,11 @@ class FilterOptionListView(generics.ListCreateAPIView):
 class FilterOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FilterOption.objects.all()
     serializer_class = FilterOptionsSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class CreateHouseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, format=None):
@@ -400,10 +405,17 @@ class CreateHouseAPIView(APIView):
                 img.save()
                 house.layout_images.add(img)
 
+            for file in request.FILES.getlist('documents'):
+                document = Document(file=file)
+                document.save()
+                house.documents.add(document)
+
             return Response({"message": "Дом успешно создан"}, status=201)
         return Response(serializer.errors, status=400)
 
+
 class UpdateHouseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def patch(self, request, house_id, format=None):
@@ -411,7 +423,6 @@ class UpdateHouseAPIView(APIView):
             house = House.objects.get(id=house_id)
         except House.DoesNotExist:
             return Response({"message": "Дом не найден"}, status=404)
-
 
         serializer = HouseSerializer(house, data=request.data, partial=True)
         if serializer.is_valid():
@@ -447,12 +458,28 @@ class UpdateHouseAPIView(APIView):
                 img.save()
                 house.layout_images.add(img)
 
+            if 'remove_documents' in request.data:
+                remove_documents = request.data.getlist('remove_documents')
+                for document_id in remove_documents:
+                    try:
+                        document = Document.objects.get(id=document_id)
+                        house.documents.remove(document)
+                        document.delete()
+                    except Document.DoesNotExist:
+                        continue
+
+            for file in request.FILES.getlist('documents'):
+                document = Document(file=file)
+                document.save()
+                house.documents.add(document)
+
             return Response({"message": "Дом успешно обновлен"}, status=200)
 
         return Response(serializer.errors, status=400)
 
 
 class DeleteImageView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self, request, house_id, image_id, category):
         house = get_object_or_404(House, id=house_id)
         image = get_object_or_404(Image, id=image_id)
@@ -471,13 +498,31 @@ class DeleteImageView(APIView):
             if image in house.layout_images.all():
                 house.layout_images.remove(image)
         else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid category'}, status=400)
+            return JsonResponse({'status': 'error', 'message': 'Неправильная категория изображения'}, status=400)
 
 
         if image.houses.count() == 0:
             image.delete()
 
-        return JsonResponse({'status': 'success', 'message': 'Image deleted successfully'})
+        return JsonResponse({'status': 'success', 'message': 'Картинка успешно удалена'})
+
+class DeleteDocumentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, house_id, document_id):
+        house = get_object_or_404(House, id=house_id)
+        document = get_object_or_404(Document, id=document_id)
+
+        if document in house.documents.all():
+            house.documents.remove(document)
+        else:
+            return Response({'message': 'Документ не связан с этим домом'}, status=400)
+
+
+        if document.houses.count() == 0:
+            document.delete()
+
+        return Response({'message': 'Документ успешно удален'}, status=200)
 
 
 def export_orders_to_excel(request):
@@ -502,7 +547,7 @@ def export_orders_to_excel(request):
             order.email,
             order.construction_place,
             order.finishing_option.title if order.finishing_option else "Не указано",
-            order.data_created.strftime('%Y-%m-%d'),  # Форматируем дату
+            order.data_created.strftime('%Y-%m-%d'),
             order.status
         ]
         ws.append(row)
