@@ -187,8 +187,30 @@ class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         house = self.get_object()
+
+        cache_key = f"house_detail_{house.id}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
         house_data = HouseSerializer(house).data
+
+        cache.set(cache_key, house_data, timeout=60 * 10)
+
         return Response(house_data)
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        self.clear_cache()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        self.clear_cache()
+
+    def clear_cache(self):
+        cache_key = f"house_detail_{self.get_object().id}"
+        cache.delete(cache_key)
 
 
 class FilteredHouseListView(APIView):
@@ -221,10 +243,30 @@ class ConstructionTechnologyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
+
 class HouseCategoryListView(generics.ListCreateAPIView):
     queryset = HouseCategory.objects.prefetch_related('houses')
     serializer_class = HouseCategorySerializer
 
+    def get(self, request, *args, **kwargs):
+        cache_key = "house_category_list"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_create(self, serializer):
+        response = super().perform_create(serializer)
+        cache.delete("house_category_list")
+        return response
 
 
 class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -234,8 +276,13 @@ class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         category_slug = self.kwargs['slug']
-        category = get_object_or_404(HouseCategory, slug=category_slug)
+        cache_key = f"house_category_{category_slug}"
+        cached_data = cache.get(cache_key)
 
+        if cached_data:
+            return Response(cached_data)
+
+        category = get_object_or_404(HouseCategory, slug=category_slug)
         filters = request.query_params
         houses = filter_houses(filters, category=category)
 
@@ -246,7 +293,20 @@ class HouseCategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
             "category": category_serializer.data,
             "houses": houses_serializer.data,
         }
+
+        cache.set(cache_key, response_data, timeout=60 * 60)
         return Response(response_data)
+
+    def perform_update(self, serializer):
+        response = super().perform_update(serializer)
+        cache.delete(f"house_category_{self.kwargs['slug']}")
+        cache.delete("house_category_list")
+        return response
+
+    def perform_destroy(self, instance):
+        cache.delete(f"house_category_{instance.slug}")
+        cache.delete("house_category_list")
+        super().perform_destroy(instance)
 
 
 class HouseCategoryDetailByIdView(generics.RetrieveUpdateDestroyAPIView):
@@ -259,11 +319,54 @@ class FinishingOptionListView(generics.ListCreateAPIView):
     queryset = FinishingOption.objects.all()
     serializer_class = FinishingOptionSerializer
 
+    def get(self, request, *args, **kwargs):
+        cache_key = "finishing_options_list"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_create(self, serializer):
+        response = super().perform_create(serializer)
+        cache.delete("finishing_options_list")  # Очищаем кэш списка
+        return response
 
 class FinishingOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FinishingOption.objects.all()
     serializer_class = FinishingOptionSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        finishing_option = self.get_object()
+        cache_key = f"finishing_option_{finishing_option.id}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        serializer = self.get_serializer(finishing_option)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_update(self, serializer):
+        response = super().perform_update(serializer)
+        cache.delete(f"finishing_option_{self.get_object().id}")
+        cache.delete("finishing_options_list")
+        return response
+
+    def perform_destroy(self, instance):
+        cache.delete(f"finishing_option_{instance.id}")
+        cache.delete("finishing_options_list")
+        super().perform_destroy(instance)
 
 class DocumentListView(generics.ListCreateAPIView):
     queryset = Document.objects.all()
@@ -279,6 +382,25 @@ class ReviewsListView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+    def get(self, request, *args, **kwargs):
+        cache_key = "reviews_list"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)  # кэшируем на 1 час
+        return Response(data)
+
+    def perform_create(self, serializer):
+        response = super().perform_create(serializer)
+        cache.delete("reviews_list")
+        return response
+
     def get_queryset(self):
         status = self.request.query_params.get('status', None)
 
@@ -290,6 +412,32 @@ class ReviewsListView(generics.ListCreateAPIView):
 class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        review_id = self.kwargs['pk']
+        cache_key = f"review_{review_id}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        review = self.get_object()
+        serializer = self.get_serializer(review)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_update(self, serializer):
+        response = super().perform_update(serializer)
+        cache.delete(f"review_{self.kwargs['pk']}")
+        cache.delete("reviews_list")
+        return response
+
+    def perform_destroy(self, instance):
+        cache.delete(f"review_{instance.pk}")
+        cache.delete("reviews_list")
+        super().perform_destroy(instance)
 
 
 class OrderListView(generics.ListCreateAPIView):
@@ -344,15 +492,34 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
 
+    def get(self, request, *args, **kwargs):
+        cache_key = "purchase_house_list"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_create(self, serializer):
+        response = super().perform_create(serializer)
+        cache.delete("purchase_house_list")
+        return response
 
     def get_queryset(self):
         construction_status = self.request.query_params.get('construction_status', None)
 
         queryset = PurchasedHouse.objects.all().select_related('house')
-
-
-        queryset = queryset.prefetch_related('house__images', 'house__interior_images', 'house__facade_images', 'house__layout_images',
-                                             'house__category', 'house__construction_technology', 'house__documents', 'house__finishing_options')
+        queryset = queryset.prefetch_related(
+            'house__images', 'house__interior_images', 'house__facade_images',
+            'house__layout_images', 'house__category', 'house__construction_technology',
+            'house__documents', 'house__finishing_options'
+        )
 
         if construction_status:
             return queryset.filter(construction_status=construction_status)
@@ -363,6 +530,33 @@ class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        house_id = self.kwargs['pk']
+        cache_key = f"purchase_house_{house_id}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data:
+            return Response(cached_data)
+
+        house = self.get_object()
+        serializer = self.get_serializer(house)
+        data = serializer.data
+
+        cache.set(cache_key, data, timeout=60 * 60)
+        return Response(data)
+
+    def perform_update(self, serializer):
+        response = super().perform_update(serializer)
+        cache.delete(f"purchase_house_{self.kwargs['pk']}")
+        cache.delete("purchase_house_list")
+        return response
+
+    def perform_destroy(self, instance):
+        cache.delete(f"purchase_house_{instance.pk}")
+        cache.delete("purchase_house_list")
+        super().perform_destroy(instance)
+
 
 
 class FilterOptionListView(generics.ListCreateAPIView):

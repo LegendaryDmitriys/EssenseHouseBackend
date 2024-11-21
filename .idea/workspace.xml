@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="implemented CRUD for House tables, added the ability to export to Excel">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="end">
+      <change afterPath="$PROJECT_DIR$/backend/signals.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -161,7 +160,7 @@
       <workItem from="1731944382661" duration="9658000" />
       <workItem from="1731998926220" duration="1877000" />
       <workItem from="1732021674616" duration="10197000" />
-      <workItem from="1732112328553" duration="28280000" />
+      <workItem from="1732112328553" duration="33226000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -299,7 +298,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731959695490</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="end">
+      <option name="closed" value="true" />
+      <created>1732144190253</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1732144190253</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -333,6 +340,7 @@
     <MESSAGE value="the logic for transferring data to the frontend has been reworked" />
     <MESSAGE value="refact logic table" />
     <MESSAGE value="implemented CRUD for House tables, added the ability to export to Excel" />
-    <option name="LAST_COMMIT_MESSAGE" value="implemented CRUD for House tables, added the ability to export to Excel" />
+    <MESSAGE value="end" />
+    <option name="LAST_COMMIT_MESSAGE" value="end" />
   </component>
 </project>
