@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 
 from .models import House, ConstructionTechnology, HouseCategory \
     , FinishingOption, Document, Review, Order, PurchasedHouse, \
-    FilterOption, UserQuestionHouse, UserQuestion, HouseFinishing, Image
+    FilterOption, UserQuestionHouse, UserQuestion, HouseFinishing, Image, BlogCategory, Blog, ReviewFile
 
 
 class ConstructionTechnologySerializer(serializers.ModelSerializer):
@@ -163,19 +163,104 @@ def validate_file_type(value):
         raise ValidationError("Разрешены только файлы с расширениями: .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .gif.")
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    file = serializers.FileField(validators=[validate_file_type], required=False)
+
+class ReviewFileSerializer(serializers.ModelSerializer):
     file_name = serializers.SerializerMethodField()
     file_size = serializers.SerializerMethodField()
+    file_type = serializers.SerializerMethodField()  # Добавляем поле для типа файла
+
     class Meta:
-        model = Review
-        fields = ['id', 'name', 'review', 'date', 'rating', 'file', 'file_name', 'file_size', 'status']
+        model = ReviewFile
+        fields = ['id', 'file', 'file_name', 'file_size', 'file_type']
 
     def get_file_name(self, obj):
         return obj.get_file_name()
 
     def get_file_size(self, obj):
         return obj.get_file_size()
+
+    def get_file_type(self, obj):
+        file = obj.file
+        if file.name.endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return 'image'
+        elif file.name.endswith(('.mp4', '.avi', '.mov')):
+            return 'video'
+        elif file.name.endswith(('.mp3', '.wav', '.ogg')):
+            return 'audio'
+        elif file.name.endswith(('.txt', '.log')):
+            return 'text'
+        elif file.name.endswith(('.pdf', '.txt', '.rtf')):
+            return 'document'
+        elif file.name.endswith(('.docx')):
+            return 'msword'
+        elif file.name.endswith(('.xml',)):
+            return 'wordprocessingml'
+        else:
+            return 'document'
+
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    files = ReviewFileSerializer(many=True, read_only=True)
+    uploaded_files = serializers.ListField(
+        child=serializers.FileField(validators=[validate_file_type]),
+        write_only=True,
+        required=False
+    )
+
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'review', 'date', 'rating', 'status', 'files', 'uploaded_files']
+
+    def create(self, validated_data):
+        uploaded_files = validated_data.pop('uploaded_files', [])
+        print(f"Количество полученных файлов: {len(uploaded_files)}")
+        for file in uploaded_files:
+            print(f"Имя файла: {file.name}")
+
+        review = Review.objects.create(**validated_data)
+
+        for file in uploaded_files:
+            file_type = self.get_file_type(file)
+            ReviewFile.objects.create(review=review, file=file, file_type=file_type)
+
+        return review
+
+
+    def update(self, instance, validated_data):
+        uploaded_files = validated_data.pop('uploaded_files', [])
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        for file in uploaded_files:
+            file_type = self.get_file_type(file)
+            ReviewFile.objects.create(review=instance, file=file, file_type=file_type)
+
+        return instance
+
+    def get_file_type(self, file):
+        if file.name.endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return 'image'
+        elif file.name.endswith(('.mp4', '.avi', '.mov')):
+            return 'video'
+        elif file.name.endswith(('.mp3', '.wav', '.ogg')):
+            return 'audio'
+        elif file.name.endswith(('.txt', '.log')):
+            return 'text'
+        elif file.name.endswith(('.pdf', '.txt', '.rtf')):
+            return 'document'
+        elif file.name.endswith(('.docx')):
+            return 'msword'
+        elif file.name.endswith(('.xml',)):
+            return 'wordprocessingml'  #
+        else:
+            return 'document'
+
+
+
+
 
 
 
@@ -279,6 +364,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 construction_status='not_started',
                 latitude=instance.latitude,
                 longitude=instance.longitude,
+                address=instance.construction_place
             )
 
         instance = super().update(instance, validated_data)
@@ -286,6 +372,17 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class UserQuestionHouseSerializer(serializers.ModelSerializer):
+
+    house = serializers.PrimaryKeyRelatedField(queryset=House.objects.all(), required=True)
+    house_details = serializers.SerializerMethodField()
+
+
+    def get_house_details(self, obj):
+        return {
+            "id": obj.house.id,
+            "title": obj.house.title,
+        }
+
     class Meta:
         model = UserQuestionHouse
         fields = '__all__'
@@ -300,6 +397,12 @@ class UserQuestionHouseSerializer(serializers.ModelSerializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.message)
         return value
+
+
+
+
+
+
 
 
 class UserQuestionSerializer(serializers.ModelSerializer):
@@ -326,3 +429,28 @@ class PurchasedHouseSerializer(serializers.ModelSerializer):
         model = PurchasedHouse
         fields = '__all__'
 
+
+
+
+class BlogCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BlogCategory
+        fields = ['id', 'name']
+
+class BlogSerializer(serializers.ModelSerializer):
+    category = BlogCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=BlogCategory.objects.all(), source='category', write_only=True
+    )
+    image = serializers.ImageField(use_url=True, required=False)
+    date = serializers.DateTimeField(required=False)
+
+    class Meta:
+        model = Blog
+        fields = ['id', 'title', 'description', 'date', 'image', 'category', 'category_id']
+
+    def update(self, instance, validated_data):
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance

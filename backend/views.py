@@ -16,11 +16,12 @@ from django.http import HttpResponse
 
 
 from .models import House, ConstructionTechnology, HouseCategory, FinishingOption, Document, Review, Order, \
-    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, Image
+    UserQuestionHouse, PurchasedHouse, FilterOption, UserQuestion, Image, Blog, BlogCategory, ReviewFile
 
 from .serializer import HouseSerializer, ConstructionTechnologySerializer, HouseCategorySerializer, \
     FinishingOptionSerializer, DocumentSerializer, ReviewSerializer, OrderSerializer, \
-    PurchasedHouseSerializer, FilterOptionsSerializer, UserQuestionHouseSerializer, UserQuestionSerializer
+    PurchasedHouseSerializer, FilterOptionsSerializer, UserQuestionHouseSerializer, UserQuestionSerializer, \
+    BlogSerializer, BlogCategorySerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -86,7 +87,7 @@ class DynamicHouseFilter(django_filters.FilterSet):
 
 
 class HousePagination(PageNumberPagination):
-    page_size = 10
+    page_size = 6
     page_size_query_param = 'page_size'
     max_page_size = 100
 
@@ -102,14 +103,31 @@ class HouseListView(APIView):
         category_slug = request.query_params.get('category')
         filters = request.query_params
         sort_by = request.query_params.get('sort', 'priceAsc')
+        limit = request.query_params.get('limit')
+        title = request.query_params.get('title')
 
-        houses = self.filter_houses(filters, category_slug, sort_by)
+        houses = self.filter_houses(filters, category_slug, sort_by, title)
 
-        paginator = self.pagination_class()
-        paginated_houses = paginator.paginate_queryset(houses, request)
-        serializer = self.serializer_class(paginated_houses, many=True)
+        if limit:
+            try:
+                limit = int(limit)
+                if limit > 0:
+                    houses = houses[:limit]
+                else:
+                    return Response({'detail': 'Параметр limit должен быть положительным числом.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                return Response({'detail': 'Параметр limit должен быть целым числом.'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-        return paginator.get_paginated_response(serializer.data)
+        if not limit:
+            paginator = self.pagination_class()
+            paginated_houses = paginator.paginate_queryset(houses, request)
+            serializer = self.serializer_class(paginated_houses, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = self.serializer_class(houses, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -128,15 +146,24 @@ class HouseListView(APIView):
         except House.DoesNotExist:
             return Response({'detail': 'Дом не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
-    def filter_houses(self, filters, category_slug=None, sort_by='priceAsc'):
+    def filter_houses(self, filters, category_name=None, sort_by='priceAsc', title=None):
+        filters = filters.copy()
+        filters = dict(filters)
+        filters = {k: v[0] if isinstance(v, list) and len(v) == 1 else v for k, v in filters.items()}
+
         houses = House.objects.all()
 
-        if category_slug:
-            try:
-                category = HouseCategory.objects.get(slug=category_slug)
-                houses = houses.filter(category=category)
-            except HouseCategory.DoesNotExist:
-                return House.objects.none()
+        if 'category' in filters and filters['category']:
+            category_name = filters.pop('category').replace('+', ' ')
+            if category_name != 'all':
+                try:
+                    category = HouseCategory.objects.get(name__iexact=category_name)
+                    houses = houses.filter(category=category)
+                except HouseCategory.DoesNotExist:
+                    return House.objects.none()
+
+        if title:
+            houses = houses.filter(title__icontains=title)
 
         filtered_houses = self.create_dynamic_filter(filters, houses)
 
@@ -151,6 +178,11 @@ class HouseListView(APIView):
         filters_db = FilterOption.objects.all()
         filter_dict = {}
 
+        cleaned_filters = {
+            k: v for k, v in filters.items()
+            if v not in ['all', '', None]
+        }
+
         for filter_option in filters_db:
             if filter_option.filter_type == 'exact':
                 filter_dict[filter_option.field_name] = django_filters.CharFilter(field_name=filter_option.field_name)
@@ -163,7 +195,7 @@ class HouseListView(APIView):
                 filter_dict[filter_option.field_name] = django_filters.CharFilter(
                     field_name=filter_option.field_name, lookup_expr='icontains')
 
-        house_filter = DynamicHouseFilter(filters, queryset=queryset)
+        house_filter = DynamicHouseFilter(cleaned_filters, queryset=queryset)
         house_filter.filters.update(filter_dict)
 
         return house_filter.qs
@@ -378,32 +410,52 @@ class DocumentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentSerializer
 
 
+
+class ReviewsPagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class ReviewsListView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    pagination_class = ReviewsPagination
 
     def get(self, request, *args, **kwargs):
-        cache_key = "reviews_list"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            return Response(cached_data)
-
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
 
-        cache.set(cache_key, data, timeout=60 * 60)  # кэшируем на 1 час
-        return Response(data)
+        limit = request.query_params.get('limit')
+        if limit:
+            try:
+                limit = int(limit)
+                if limit > 0:
+                    queryset = queryset[:limit]
+                    serializer = self.get_serializer(queryset, many=True)
+                    return Response(serializer.data)
+            except (ValueError, TypeError):
+                pass
 
-    def perform_create(self, serializer):
-        response = super().perform_create(serializer)
-        cache.delete("reviews_list")
-        return response
+
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(queryset, request)
+
+        serializer = self.get_serializer(result_page, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
         status = self.request.query_params.get('status', None)
-
         if status:
             return Review.objects.filter(status=status)
         return Review.objects.all()
@@ -412,32 +464,37 @@ class ReviewsListView(generics.ListCreateAPIView):
 class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get(self, request, *args, **kwargs):
-        review_id = self.kwargs['pk']
-        cache_key = f"review_{review_id}"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            return Response(cached_data)
-
         review = self.get_object()
         serializer = self.get_serializer(review)
-        data = serializer.data
+        return Response(serializer.data)
 
-        cache.set(cache_key, data, timeout=60 * 60)
-        return Response(data)
+    def update(self, request, *args, **kwargs):
+        review = self.get_object()
+        files = request.FILES.getlist('uploaded_files')  # Получаем новые файлы
+        serializer = self.get_serializer(review, data=request.data, partial=True)
 
-    def perform_update(self, serializer):
-        response = super().perform_update(serializer)
-        cache.delete(f"review_{self.kwargs['pk']}")
-        cache.delete("reviews_list")
-        return response
+        if serializer.is_valid():
+            review = serializer.save()
 
-    def perform_destroy(self, instance):
-        cache.delete(f"review_{instance.pk}")
-        cache.delete("reviews_list")
-        super().perform_destroy(instance)
+            for file in files:
+                ReviewFile.objects.create(review=review, file=file)
+
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+
+        ReviewFile.objects.filter(review=instance).delete()
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 class OrderListView(generics.ListCreateAPIView):
@@ -470,7 +527,7 @@ class UserQuestionHouseListView(generics.ListCreateAPIView):
 class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestionHouse.objects.all()
     serializer_class = UserQuestionHouseSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class UserQuestionListView(ListCreateAPIView):
@@ -485,7 +542,7 @@ class UserQuestionListView(ListCreateAPIView):
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class PurchaseHouseListView(generics.ListCreateAPIView):
@@ -529,7 +586,7 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         house_id = self.kwargs['pk']
@@ -571,10 +628,12 @@ class FilterOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CreateHouseAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, format=None):
+        print("Received data:", request.data)  # Логирование входных данных
+        print("Received files:", request.FILES)
         serializer = HouseSerializer(data=request.data)
         if serializer.is_valid():
             house = serializer.save()
@@ -848,3 +907,23 @@ def export_user_questions_and_houses(request):
 
     wb.save(response)
     return response
+
+class BlogListCreateView(generics.ListCreateAPIView):
+    queryset = Blog.objects.select_related('category').all()
+    serializer_class = BlogSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializer
+
+class BlogCategoryListView(generics.ListCreateAPIView):
+    queryset = BlogCategory.objects.all()
+    serializer_class = BlogCategorySerializer
+
+class BlogsByCategoryView(generics.ListAPIView):
+    serializer_class = BlogSerializer
+
+    def get_queryset(self):
+        category_id = self.kwargs['category_id']
+        return Blog.objects.filter(category_id=category_id)

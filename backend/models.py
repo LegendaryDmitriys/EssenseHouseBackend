@@ -153,22 +153,33 @@ class Review(models.Model):
     review = models.TextField()
     date = models.DateTimeField(default=timezone.now)
     rating = models.PositiveSmallIntegerField()
-    file = models.FileField(upload_to='user/reviews/', blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-
-    def save(self, *args, **kwargs):
-        if not self.name:
-            self.name = 'Аноним'
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Отзыв от {self.name} с рейтингом {self.rating}"
 
+
+class ReviewFile(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name="files")
+    file = models.FileField(upload_to='user/reviews/')
+    file_type = models.CharField(max_length=50, choices=[
+        ('image', 'Image'),
+        ('video', 'Video'),
+        ('audio', 'Audio'),
+        ('text', 'Text'),
+        ('document', 'Document'),
+        ('msword', 'Microsoft Word'),
+        ('wordprocessingml', 'Word Processing ML'),
+    ], default='document')
+
     def get_file_name(self):
-        return os.path.basename(self.file.name) if self.file else None
+        return os.path.basename(self.file.name)
 
     def get_file_size(self):
-        return round(self.file.size / (1024 * 1024), 2) if self.file else None
+        return round(self.file.size / (1024 * 1024), 2)
+
+
+
 
 
 class Order(models.Model):
@@ -242,7 +253,31 @@ class PurchasedHouse(models.Model):
     construction_status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Статус строительства")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Широта")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Долгота")
+    address = models.CharField(max_length=255, verbose_name="Адрес строительства", null=True, blank=True)
+    completed_date = models.DateField(verbose_name="Дата завершения строительства", null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if self.construction_status == 'completed' and not self.completed_date:
+            self.completed_date = timezone.now().date()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.house.title} - {self.buyer_name}"
+
+
+class BlogCategory(models.Model):
+    name = models.CharField(max_length=255, unique=True, verbose_name="Категория")
+
+    def __str__(self):
+        return self.name
+
+
+class Blog(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Заголовок")
+    description = models.TextField(verbose_name="Описание")
+    date = models.DateTimeField(verbose_name="Дата публикации")
+    image = models.ImageField(upload_to='blog/', verbose_name="Изображение")
+    category = models.ForeignKey(BlogCategory, on_delete=models.CASCADE, related_name="blogs", verbose_name="Категория")
+
+    def __str__(self):
+        return self.title

@@ -5,11 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="end">
-      <change afterPath="$PROJECT_DIR$/backend/signals.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/user/reviews/1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/user/reviews/Коммерческое_предложение.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/media/user/reviews/Коммерческое_предложение_2.docx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +46,7 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/LegendaryDmitriys/EssenseHouseBackend.git&quot;,
+    &quot;url&quot;: &quot;https://github.com/LegendaryDmitriys/EssenseHouseBackend&quot;,
     &quot;accountId&quot;: &quot;25187bc1-ffeb-4517-a000-f5ac205b3c3a&quot;
   }
 }</component>
@@ -62,7 +65,7 @@
     &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitry/Desktop/putoshka-asistent-backend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitry/Desktop/Backend/EssenseHouseBackend&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -161,6 +164,29 @@
       <workItem from="1731998926220" duration="1877000" />
       <workItem from="1732021674616" duration="10197000" />
       <workItem from="1732112328553" duration="33226000" />
+      <workItem from="1740683996758" duration="4631000" />
+      <workItem from="1740814158833" duration="6205000" />
+      <workItem from="1740944544114" duration="2109000" />
+      <workItem from="1741018200502" duration="3092000" />
+      <workItem from="1741028415662" duration="1008000" />
+      <workItem from="1741708044870" duration="2926000" />
+      <workItem from="1741874981301" duration="2207000" />
+      <workItem from="1741880889599" duration="4736000" />
+      <workItem from="1742152518502" duration="393000" />
+      <workItem from="1742326537833" duration="3977000" />
+      <workItem from="1742735982618" duration="2781000" />
+      <workItem from="1743808080027" duration="644000" />
+      <workItem from="1743852807186" duration="5982000" />
+      <workItem from="1744051333949" duration="1697000" />
+      <workItem from="1744111213211" duration="1711000" />
+      <workItem from="1744299873760" duration="8892000" />
+      <workItem from="1744649267963" duration="3105000" />
+      <workItem from="1744656235820" duration="617000" />
+      <workItem from="1744876254074" duration="48000" />
+      <workItem from="1745320824115" duration="4669000" />
+      <workItem from="1745407299905" duration="3634000" />
+      <workItem from="1745420601614" duration="3022000" />
+      <workItem from="1745496549330" duration="3681000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
