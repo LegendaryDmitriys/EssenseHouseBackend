@@ -350,55 +350,55 @@ class HouseCategoryDetailByIdView(generics.RetrieveUpdateDestroyAPIView):
 class FinishingOptionListView(generics.ListCreateAPIView):
     queryset = FinishingOption.objects.all()
     serializer_class = FinishingOptionSerializer
-
-    def get(self, request, *args, **kwargs):
-        cache_key = "finishing_options_list"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            return Response(cached_data)
-
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
-
-        cache.set(cache_key, data, timeout=60 * 60)
-        return Response(data)
-
-    def perform_create(self, serializer):
-        response = super().perform_create(serializer)
-        cache.delete("finishing_options_list")  # Очищаем кэш списка
-        return response
+    #
+    # def get(self, request, *args, **kwargs):
+    #     cache_key = "finishing_options_list"
+    #     cached_data = cache.get(cache_key)
+    #
+    #     if cached_data:
+    #         return Response(cached_data)
+    #
+    #     queryset = self.get_queryset()
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     data = serializer.data
+    #
+    #     cache.set(cache_key, data, timeout=60 * 60)
+    #     return Response(data)
+    #
+    # def perform_create(self, serializer):
+    #     response = super().perform_create(serializer)
+    #     cache.delete("finishing_options_list")  # Очищаем кэш списка
+    #     return response
 
 class FinishingOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = FinishingOption.objects.all()
     serializer_class = FinishingOptionSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        finishing_option = self.get_object()
-        cache_key = f"finishing_option_{finishing_option.id}"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            return Response(cached_data)
-
-        serializer = self.get_serializer(finishing_option)
-        data = serializer.data
-
-        cache.set(cache_key, data, timeout=60 * 60)
-        return Response(data)
-
-    def perform_update(self, serializer):
-        response = super().perform_update(serializer)
-        cache.delete(f"finishing_option_{self.get_object().id}")
-        cache.delete("finishing_options_list")
-        return response
-
-    def perform_destroy(self, instance):
-        cache.delete(f"finishing_option_{instance.id}")
-        cache.delete("finishing_options_list")
-        super().perform_destroy(instance)
+    # def get(self, request, *args, **kwargs):
+    #     finishing_option = self.get_object()
+    #     cache_key = f"finishing_option_{finishing_option.id}"
+    #     cached_data = cache.get(cache_key)
+    #
+    #     if cached_data:
+    #         return Response(cached_data)
+    #
+    #     serializer = self.get_serializer(finishing_option)
+    #     data = serializer.data
+    #
+    #     cache.set(cache_key, data, timeout=60 * 60)
+    #     return Response(data)
+    #
+    # def perform_update(self, serializer):
+    #     response = super().perform_update(serializer)
+    #     cache.delete(f"finishing_option_{self.get_object().id}")
+    #     cache.delete("finishing_options_list")
+    #     return response
+    #
+    # def perform_destroy(self, instance):
+    #     cache.delete(f"finishing_option_{instance.id}")
+    #     cache.delete("finishing_options_list")
+    #     super().perform_destroy(instance)
 
 class DocumentListView(generics.ListCreateAPIView):
     queryset = Document.objects.all()
@@ -632,8 +632,6 @@ class CreateHouseAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, format=None):
-        print("Received data:", request.data)  # Логирование входных данных
-        print("Received files:", request.FILES)
         serializer = HouseSerializer(data=request.data)
         if serializer.is_valid():
             house = serializer.save()
@@ -668,7 +666,7 @@ class CreateHouseAPIView(APIView):
 
 
 class UpdateHouseAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def patch(self, request, house_id, format=None):
@@ -732,7 +730,7 @@ class UpdateHouseAPIView(APIView):
 
 
 class DeleteImageView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def delete(self, request, house_id, image_id, category):
         house = get_object_or_404(House, id=house_id)
         image = get_object_or_404(Image, id=image_id)
@@ -760,7 +758,7 @@ class DeleteImageView(APIView):
         return JsonResponse({'status': 'success', 'message': 'Картинка успешно удалена'})
 
 class DeleteDocumentView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def delete(self, request, house_id, document_id):
         house = get_object_or_404(House, id=house_id)
@@ -916,6 +914,15 @@ class BlogListCreateView(generics.ListCreateAPIView):
 class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 class BlogCategoryListView(generics.ListCreateAPIView):
     queryset = BlogCategory.objects.all()

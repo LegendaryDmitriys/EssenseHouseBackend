@@ -273,11 +273,18 @@ class BlogCategory(models.Model):
 
 
 class Blog(models.Model):
+    STATUS_CHOICES = [
+        ('published', 'Опубликован'),
+        ('pending', 'Ожидает публикации'),
+        ('rejected', 'Отказано'),
+    ]
     title = models.CharField(max_length=255, verbose_name="Заголовок")
     description = models.TextField(verbose_name="Описание")
-    date = models.DateTimeField(verbose_name="Дата публикации")
+    content = models.TextField(verbose_name="Содержимое")
+    date = models.DateTimeField(auto_now_add=True, verbose_name="Дата публикации")
     image = models.ImageField(upload_to='blog/', verbose_name="Изображение")
     category = models.ForeignKey(BlogCategory, on_delete=models.CASCADE, related_name="blogs", verbose_name="Категория")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Статус строительства")
 
     def __str__(self):
         return self.title

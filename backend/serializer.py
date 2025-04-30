@@ -77,6 +77,8 @@ class HouseSerializer(serializers.ModelSerializer):
     discount = serializers.SerializerMethodField()
     garage = serializers.IntegerField(allow_null=True, required=False)
 
+
+
     def get_new_price(self, obj):
         return round(obj.new_price) if obj.new_price else None
 
@@ -91,7 +93,9 @@ class HouseSerializer(serializers.ModelSerializer):
         queryset=HouseCategory.objects.all(), write_only=True
     )
     finishing_options = serializers.PrimaryKeyRelatedField(
-        queryset=FinishingOption.objects.all(), many=True, write_only=True
+        queryset=FinishingOption.objects.all(),
+        many=True,
+        write_only=True
     )
 
     construction_technology_details = ConstructionTechnologySerializer(
@@ -101,9 +105,10 @@ class HouseSerializer(serializers.ModelSerializer):
         read_only=True, source='category'
     )
     finishing_options_details = FinishingOptionSerializer(
-        read_only=True, many=True, source='finishing_options'
+        read_only=True,
+        many=True,
+        source='finishing_options'
     )
-
 
     class Meta:
         model = House
@@ -114,8 +119,9 @@ class HouseSerializer(serializers.ModelSerializer):
         interior_images_data = validated_data.pop('interior_images', [])
         facade_images_data = validated_data.pop('facade_images', [])
         layout_images_data = validated_data.pop('layout_images', [])
-        finishing_options_data = validated_data.pop('finishing_options', [])
+        finishing_options = validated_data.pop('finishing_options', [])
         documents_data = validated_data.pop('documents', [])
+
 
         house = House.objects.create(**validated_data)
 
@@ -131,7 +137,8 @@ class HouseSerializer(serializers.ModelSerializer):
         for image_data in layout_images_data:
             house.layout_images.add(Image.objects.create(image=image_data['image']))
 
-        house.finishing_options.set(finishing_options_data)
+        if finishing_options:
+            house.finishing_options.set(finishing_options)
 
         for document_data in documents_data:
             Document.objects.create(house=house, **document_data)
@@ -447,7 +454,9 @@ class BlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'description', 'date', 'image', 'category', 'category_id']
+        fields = ['id', 'title', 'description', 'date', 'image', 'content', 'status', 'category', 'category_id']
+
+
 
     def update(self, instance, validated_data):
         for field, value in validated_data.items():
