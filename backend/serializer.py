@@ -114,6 +114,13 @@ class HouseSerializer(serializers.ModelSerializer):
         model = House
         fields = '__all__'
 
+    def validate_best_seller(self, value):
+        if value in [None, '', 'null']:
+            return None
+        if value not in dict(House.BESTSELLER_CHOICES):
+            raise serializers.ValidationError("Выберите корректный вариант.")
+        return value
+
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
         interior_images_data = validated_data.pop('interior_images', [])

@@ -422,6 +422,13 @@ class ReviewsListView(generics.ListCreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = ReviewsPagination
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        status_filter = self.request.query_params.get('status', None)
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        return queryset
+
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
@@ -436,29 +443,18 @@ class ReviewsListView(generics.ListCreateAPIView):
             except (ValueError, TypeError):
                 pass
 
-
         paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(queryset, request)
 
         serializer = self.get_serializer(result_page, many=True)
-
         return paginator.get_paginated_response(serializer.data)
-
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get_queryset(self):
-        status = self.request.query_params.get('status', None)
-        if status:
-            return Review.objects.filter(status=status)
-        return Review.objects.all()
 
 
 class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):

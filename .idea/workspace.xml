@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="fix bugs">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="redesigned the Blog model, serializer for creating a Home, fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/media/user/reviews/Коммерческое_предложение.docx" beforeDir="false" />
@@ -190,7 +188,9 @@
       <workItem from="1745785755470" duration="805000" />
       <workItem from="1745794292458" duration="5806000" />
       <workItem from="1745926223086" duration="1483000" />
-      <workItem from="1746018107486" duration="19001000" />
+      <workItem from="1746018107486" duration="19450000" />
+      <workItem from="1746095259549" duration="727000" />
+      <workItem from="1746376647406" duration="7238000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -344,7 +344,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745502488240</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="redesigned the Blog model, serializer for creating a Home, fixes">
+      <option name="closed" value="true" />
+      <created>1746050162504</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1746050162504</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -380,6 +388,7 @@
     <MESSAGE value="implemented CRUD for House tables, added the ability to export to Excel" />
     <MESSAGE value="end" />
     <MESSAGE value="fix bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bugs" />
+    <MESSAGE value="redesigned the Blog model, serializer for creating a Home, fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="redesigned the Blog model, serializer for creating a Home, fixes" />
   </component>
 </project>
