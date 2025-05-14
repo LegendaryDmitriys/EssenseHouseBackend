@@ -33,6 +33,14 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
+VAPID_PRIVATE_KEY = "KUCssOmATxD1S8Pj7m82uxhEMrBhNoOIRFmNoQMjEEI"
+VAPID_PUBLIC_KEY = "BPSzZyM01ouj_pvEXeRRloM23YTmt81hkSOo7LfPtUrbjOpIBb80vEg38x3AoJRIrJRsTTfPuEYTxEJurrY0css"
+
+
+VAPID_CLAIMS = {
+    "sub": "mailto:admin@example.com",  # Email для контакта
+    "aud": "https://fcm.googleapis.com"  # Аудитория (обычно URL FCM)
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,6 +54,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'backend',
     'auth_app',
+    'mail_service',
     # 'debug_toolbar',
     'django_filters'
 ]

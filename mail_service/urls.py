@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import SendEmailView, FetchEmailsView, send_answer
+from .views import send_answer, save_subscription, send_notification_to_all
 
 urlpatterns = [
-    path('send-email/', SendEmailView.as_view(), name='send_email'),
-    path('fetch-emails/', FetchEmailsView.as_view(), name='fetch_emails'),
-    path("send-answer/", send_answer, name="send_answer"),
+    path("send-answer/", send_answer, name="Отправка письма"),
+    path('subscribe', save_subscription, name="Подписка на Push-уведомления"),
+    path('send-notification/', send_notification_to_all, name='Отправка Push-уведомлений'),
 ]
