@@ -38,8 +38,8 @@ VAPID_PUBLIC_KEY = "BPSzZyM01ouj_pvEXeRRloM23YTmt81hkSOo7LfPtUrbjOpIBb80vEg38x3A
 
 
 VAPID_CLAIMS = {
-    "sub": "mailto:admin@example.com",  # Email для контакта
-    "aud": "https://fcm.googleapis.com"  # Аудитория (обычно URL FCM)
+    "sub": "mailto:admin@example.com",
+    "aud": "https://fcm.googleapis.com"
 }
 # Application definition
 
@@ -74,7 +74,7 @@ REST_FRAMEWORK = {
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'auth_app.backends.AdminUserBackend',
+    'auth_app.backends.UserBackend',
 )
 
 
@@ -125,7 +125,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EssenseHouse.wsgi.application'
 
-AUTH_USER_MODEL = 'auth_app.AdminUser'
+AUTH_USER_MODEL = 'auth_app.User'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

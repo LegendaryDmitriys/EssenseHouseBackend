@@ -12,7 +12,7 @@ from backend.views import HouseListView, HouseDetailView, ConstructionTechnology
     UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView, \
     HouseCategoryDetailByIdView, FilterOptionDetailView, CreateHouseAPIView, UpdateHouseAPIView, DeleteImageView, \
     export_orders_to_excel, export_purchased_houses, export_user_questions_and_houses, DeleteDocumentView, \
-    BlogListCreateView, BlogDetailView, BlogCategoryListView, BlogsByCategoryView
+    BlogListCreateView, BlogDetailView, BlogCategoryListView, BlogsByCategoryView, OrdersByEmailView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -35,6 +35,7 @@ urlpatterns = [
     path('reviews/<int:pk>/', ReviewsDetailView.as_view(), name='review_detail'),
     path('orders/', OrderListView.as_view(), name='order_list'),
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
+    path('orders/by-email/', OrdersByEmailView.as_view(), name='orders_by_email'),
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
     path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
     path('house-questions/', UserQuestionHouseListView.as_view(), name='user_question_house_list'),
@@ -48,7 +49,7 @@ urlpatterns = [
 
     path('blogs/', BlogListCreateView.as_view(), name='post-list'),
     path('blogs/<int:pk>/', BlogDetailView.as_view(), name='post-detail'),
-    path('blog/categories/', BlogCategoryListView.as_view(), name='category-list'),
+    path('blogs/categories/', BlogCategoryListView.as_view(), name='category-list'),
     path('blog/categories/<int:category_id>/posts/', BlogsByCategoryView.as_view(), name='posts-by-category'),
 
     path('export_orders/', export_orders_to_excel, name='export_orders'),

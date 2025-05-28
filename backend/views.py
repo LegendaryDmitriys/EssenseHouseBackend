@@ -85,6 +85,10 @@ class DynamicHouseFilter(django_filters.FilterSet):
         model = House
         fields = {}
 
+class Pagination(PageNumberPagination):
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class HousePagination(PageNumberPagination):
     page_size = 6
@@ -417,7 +421,7 @@ class ReviewsPagination(PageNumberPagination):
     max_page_size = 100
 
 class ReviewsListView(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
+    queryset = Review.objects.all().order_by('-date')
     serializer_class = ReviewSerializer
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = ReviewsPagination
@@ -508,6 +512,25 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+
+class OrdersByEmailView(APIView):
+    def get(self, request):
+        email = request.query_params.get('email')
+        if not email:
+            return Response(
+                {"error": "Требуется параметр электронной почты."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        orders = Order.objects.filter(email=email)
+        if not orders.exists():
+            return Response(
+                {"error": "На этот адрес электронной почты заказов не найдено."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserQuestionHouseListView(generics.ListCreateAPIView):
     queryset = UserQuestionHouse.objects.all()
@@ -903,9 +926,21 @@ def export_user_questions_and_houses(request):
     return response
 
 class BlogListCreateView(generics.ListCreateAPIView):
-    queryset = Blog.objects.select_related('category').all()
+    queryset = Blog.objects.select_related('category').all().order_by('-date')
     serializer_class = BlogSerializer
     parser_classes = [MultiPartParser, FormParser]
+    pagination_class = Pagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        category = self.request.query_params.get('category')
+        if category:
+            queryset = queryset.filter(category__name__iexact=category)
+
+
+        return queryset
+
 
 class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()

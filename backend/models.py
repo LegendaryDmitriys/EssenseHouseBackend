@@ -150,6 +150,7 @@ class Review(models.Model):
     ]
 
     name = models.CharField(max_length=255, blank=True, null=True, default='Аноним')
+    email = models.EmailField(blank=True, null=True)
     review = models.TextField()
     date = models.DateTimeField(default=timezone.now)
     rating = models.PositiveSmallIntegerField()

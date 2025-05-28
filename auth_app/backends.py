@@ -1,11 +1,11 @@
 from django.contrib.auth.backends import ModelBackend
-from .models import AdminUser
+from auth_app.models import User
 
-class AdminUserBackend(ModelBackend):
+class UserBackend(ModelBackend):
     def authenticate(self, request, email=None, password=None, **kwargs):
         try:
-            user = AdminUser.objects.get(email=email)
-        except AdminUser.DoesNotExist:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
             return None
         if user.check_password(password):
             return user

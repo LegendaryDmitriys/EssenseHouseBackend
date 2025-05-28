@@ -224,7 +224,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'name', 'review', 'date', 'rating', 'status', 'files', 'uploaded_files']
+        fields = ['id', 'name', 'email', 'review', 'date', 'rating', 'status', 'files', 'uploaded_files']
 
     def create(self, validated_data):
         uploaded_files = validated_data.pop('uploaded_files', [])

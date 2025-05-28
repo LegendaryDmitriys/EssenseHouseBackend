@@ -88,17 +88,51 @@ def send_answer(request):
 
 
 
+#
+# @csrf_exempt
+# def save_subscription(request):
+#     if request.method == 'POST':
+#
+#         data = json.loads(request.body)
+#
+#         session = request.session
+#         if not session.session_key:
+#             session.save()
+#         session_key = session.session_key
+#
+#         PushSubscription.objects.create(
+#             endpoint=data['endpoint'],
+#             keys=data['keys'],
+#             session_key=session_key
+#         )
+#         return JsonResponse({'status': 'ok'})
+#     return JsonResponse({'error': 'Неверный метод'}, status=400)
 
-@csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def save_subscription(request):
     if request.method == 'POST':
         data = json.loads(request.body)
+
+        session = request.session
+        if not session.session_key:
+            session.save()
+        session_key = session.session_key
+
+        user = request.user if request.user.is_authenticated else None
+
         PushSubscription.objects.create(
+            user=user,
             endpoint=data['endpoint'],
-            keys=data['keys']
+            keys=data['keys'],
+            session_key=session_key
         )
         return JsonResponse({'status': 'ok'})
     return JsonResponse({'error': 'Неверный метод'}, status=400)
+
 
 
 @csrf_exempt
@@ -107,10 +141,9 @@ def send_notification_to_all(request):
         try:
             data = json.loads(request.body)
             title = data.get('title', 'Новое уведомление')
-            body = data.get('body', 'Проверка push-уведомлений!')
+            body = data.get('body', 'Описание')
             icon = data.get('icon', '/media/push/icon.png')
             badge = data.get('badge', '/media/push/badge.png')
-
             subscriptions = PushSubscription.objects.all()
             for sub in subscriptions:
                 webpush(
@@ -118,7 +151,7 @@ def send_notification_to_all(request):
                         "endpoint": sub.endpoint,
                         "keys": sub.keys
                     },
-                    data=json.dumps({"title": title, "body": body, "icon": icon, "badge": badge}),
+                    data=json.dumps({"title": title, "body": body, "icon": icon, "badge": badge, "link": data.get('link', '/')}),
                     vapid_private_key=settings.VAPID_PRIVATE_KEY,
                     vapid_claims=settings.VAPID_CLAIMS
                 )
@@ -126,3 +159,34 @@ def send_notification_to_all(request):
         except WebPushException as e:
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Только POST-запросы!'}, status=405)
+
+
+def send_notification_to_user(user, title, body, link="/", icon="/media/push/icon.png", badge="/media/push/badge.png"):
+    subscriptions = PushSubscription.objects.filter(user=user)
+    if not subscriptions.exists():
+        print(f" Нет подписки у {user.email}")
+        return
+
+
+    payload = json.dumps({
+        "title": title,
+        "body": body,
+        "icon": icon,
+        "badge": badge,
+        "link": link
+    })
+
+    for sub in subscriptions:
+        try:
+            webpush(
+                subscription_info={
+                    "endpoint": sub.endpoint,
+                    "keys": sub.keys
+                },
+                data=payload,
+                vapid_private_key=settings.VAPID_PRIVATE_KEY,
+                vapid_claims=settings.VAPID_CLAIMS
+            )
+
+        except WebPushException as e:
+            print(f"Ошибка отправки пуш: {e}")
