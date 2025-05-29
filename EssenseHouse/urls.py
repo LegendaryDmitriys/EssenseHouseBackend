@@ -18,10 +18,7 @@ urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
     path('houses/<int:pk>/', HouseDetailView.as_view(), name='house_detail'),
     path('houses/filter/', FilteredHouseListView.as_view(), name='filtered-house-list'),
-    path('purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
-    path('purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
-    path('filter-options/', FilterOptionListView.as_view(), name='finishing-option-list'),
-    path('filter-options/<int:pk>/', cache_page(60 * 15)(FilterOptionDetailView.as_view()), name='finishing-option-detail'),
+
     path('houses/construction-technologies', cache_page(60 * 15)(ConstructionTechnologyListView.as_view()), name='construction_technology_list'),
     path('houses/construction-technologies/<int:pk>', cache_page(60 * 15)(ConstructionTechnologyDetailView.as_view()), name='construction_technology_list'),
     path('houses/category/', HouseCategoryListView.as_view(), name='category_list'),
@@ -31,17 +28,28 @@ urlpatterns = [
     path('houses/finishing-options/<int:pk>/', FinishingOptionDetailView.as_view(), name='finishing_options'),
     path('houses-document/', DocumentListView.as_view(), name='document_list'),
     path('house/documents/<int:pk>/', DocumentDetailView.as_view(), name='document_detail'),
+
+    path('filter-options/', FilterOptionListView.as_view(), name='finishing-option-list'),
+    path('filter-options/<int:pk>/', cache_page(60 * 15)(FilterOptionDetailView.as_view()), name='finishing-option-detail'),
+
+    path('purchase/', PurchaseHouseListView.as_view(), name='purchase_house_list'),
+    path('purchase/<int:pk>/', PurchaseHouseDetailView.as_view(), name='purchase_house_detail'),
+
     path('reviews/', ReviewsListView.as_view(), name='review_list'),
     path('reviews/<int:pk>/', ReviewsDetailView.as_view(), name='review_detail'),
+
     path('orders/', OrderListView.as_view(), name='order_list'),
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
     path('orders/by-email/', OrdersByEmailView.as_view(), name='orders_by_email'),
+
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
     path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
     path('house-questions/', UserQuestionHouseListView.as_view(), name='user_question_house_list'),
     path('house-question/<int:pk>/', UserQuestionHouseDetailView.as_view(), name='user_question_house_detail'),
+
     path('auth/', include('auth_app.urls')),
     path('mail/', include('mail_service.urls')),
+
     path('houses/create', CreateHouseAPIView.as_view(), name='house_list-create'),
     path('houses/update/<int:house_id>/', UpdateHouseAPIView.as_view(), name='update_house'),
     path('houses/<int:house_id>/images/<int:image_id>/delete/<str:category>/', DeleteImageView.as_view(), name='delete_image'),

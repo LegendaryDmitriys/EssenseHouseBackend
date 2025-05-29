@@ -5,16 +5,17 @@ from .models import PushSubscription
 
 from backend.models import UserQuestionHouse
 
-
 from django.core.mail import EmailMultiAlternatives
 from django.http import JsonResponse
 from django.conf import settings
 from pywebpush import webpush, WebPushException
 import json
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
-@csrf_exempt
+@permission_classes([IsAuthenticated])
 def send_answer(request):
     if request.method == "POST":
         try:
@@ -108,9 +109,6 @@ def send_answer(request):
 #         return JsonResponse({'status': 'ok'})
 #     return JsonResponse({'error': 'Неверный метод'}, status=400)
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def save_subscription(request):
@@ -134,8 +132,8 @@ def save_subscription(request):
     return JsonResponse({'error': 'Неверный метод'}, status=400)
 
 
-
-@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def send_notification_to_all(request):
     if request.method == 'POST':
         try:

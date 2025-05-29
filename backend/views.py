@@ -7,7 +7,7 @@ from rest_framework import generics
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from django.core.cache import cache
 
@@ -205,9 +205,6 @@ class HouseListView(APIView):
         return house_filter.qs
 
 
-
-
-
 class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = House.objects.prefetch_related(
         'category',
@@ -220,6 +217,11 @@ class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
         'documents'
     ).all()
     serializer_class = HouseSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get(self, request, *args, **kwargs):
         house = self.get_object()
@@ -241,8 +243,10 @@ class HouseDetailView(generics.RetrieveUpdateDestroyAPIView):
         self.clear_cache()
 
     def perform_destroy(self, instance):
+        house_id = instance.id
+        cache_key = f"house_detail_{house_id}"
+        cache.delete(cache_key)
         super().perform_destroy(instance)
-        self.clear_cache()
 
     def clear_cache(self):
         cache_key = f"house_detail_{self.get_object().id}"
@@ -466,6 +470,12 @@ class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PATCH', 'PUT']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+
     def get(self, request, *args, **kwargs):
         review = self.get_object()
         serializer = self.get_serializer(review)
@@ -473,7 +483,7 @@ class ReviewsDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         review = self.get_object()
-        files = request.FILES.getlist('uploaded_files')  # Получаем новые файлы
+        files = request.FILES.getlist('uploaded_files')
         serializer = self.get_serializer(review, data=request.data, partial=True)
 
         if serializer.is_valid():
@@ -512,6 +522,12 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
+
 
 class OrdersByEmailView(APIView):
     def get(self, request):
@@ -546,7 +562,11 @@ class UserQuestionHouseListView(generics.ListCreateAPIView):
 class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestionHouse.objects.all()
     serializer_class = UserQuestionHouseSerializer
-    # permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PATCH', 'PUT']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
 
 class UserQuestionListView(ListCreateAPIView):
@@ -561,12 +581,21 @@ class UserQuestionListView(ListCreateAPIView):
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
-    # permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PATCH', 'PUT']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
 
 class PurchaseHouseListView(generics.ListCreateAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get(self, request, *args, **kwargs):
         cache_key = "purchase_house_list"
@@ -605,7 +634,11 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
-    # permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'DELETE', 'PATCH']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get(self, request, *args, **kwargs):
         house_id = self.kwargs['pk']
@@ -647,7 +680,7 @@ class FilterOptionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CreateHouseAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, format=None):
@@ -685,7 +718,7 @@ class CreateHouseAPIView(APIView):
 
 
 class UpdateHouseAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     def patch(self, request, house_id, format=None):
@@ -749,7 +782,7 @@ class UpdateHouseAPIView(APIView):
 
 
 class DeleteImageView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     def delete(self, request, house_id, image_id, category):
         house = get_object_or_404(House, id=house_id)
         image = get_object_or_404(Image, id=image_id)
@@ -777,7 +810,7 @@ class DeleteImageView(APIView):
         return JsonResponse({'status': 'success', 'message': 'Картинка успешно удалена'})
 
 class DeleteDocumentView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, house_id, document_id):
         house = get_object_or_404(House, id=house_id)
@@ -931,6 +964,11 @@ class BlogListCreateView(generics.ListCreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = Pagination
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -946,6 +984,12 @@ class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
     parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', True)
