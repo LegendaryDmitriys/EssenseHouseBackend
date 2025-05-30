@@ -149,7 +149,8 @@ class Review(models.Model):
         ('rejected', 'Отказано'),
     ]
 
-    name = models.CharField(max_length=255, blank=True, null=True, default='Аноним')
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     review = models.TextField()
     date = models.DateTimeField(default=timezone.now)
@@ -189,7 +190,8 @@ class Order(models.Model):
         ('approved', 'Одобрено'),
         ('rejected', 'Отклонено'),
     ]
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Выбранный дом",db_index=True)
@@ -211,7 +213,8 @@ class UserQuestionHouse(models.Model):
         ('answered', 'Ответ предоставлен'),
         ('closed', 'Закрыт'),
     ]
-    name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     email = models.EmailField(blank=True)
     house = models.ForeignKey('House', on_delete=models.CASCADE, verbose_name="Интересующий дом")
@@ -220,7 +223,7 @@ class UserQuestionHouse(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting')
 
     def __str__(self):
-        return f"Вопрос от {self.name} по дому {self.house.title}"
+        return f"Вопрос от {self.first_name} {self.last_name} по дому {self.house.title}"
 
 
 class UserQuestion(models.Model):
@@ -230,13 +233,14 @@ class UserQuestion(models.Model):
         ('closed', 'Закрыт'),
     ]
 
-    name = models.CharField(max_length=255, verbose_name="Имя")
+    first_name = models.CharField(max_length=255, verbose_name="Имя")
+    last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, verbose_name="Телефон")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата создания")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting', verbose_name="Статус")
 
     def __str__(self):
-        return f"Запрос от {self.name} ({self.phone})"
+        return f"Запрос от {self.first_name} {self.last_name} ({self.phone})"
 
 
 class PurchasedHouse(models.Model):
@@ -248,9 +252,10 @@ class PurchasedHouse(models.Model):
 
     house = models.ForeignKey(House, on_delete=models.CASCADE, verbose_name="Купленный дом",db_index=True)
     purchase_date = models.DateField(verbose_name="Дата покупки")
-    buyer_name = models.CharField(max_length=255, verbose_name="Имя покупателя")
-    buyer_phone = models.CharField(max_length=20, verbose_name="Номер телефона покупателя")
-    buyer_email = models.EmailField(max_length=255, verbose_name="Почта покупателя")
+    first_name = models.CharField(max_length=255, verbose_name="Имя покупателя")
+    last_name = models.CharField(max_length=255, verbose_name="Фамилия покупателя")
+    phone_number = models.CharField(max_length=20, verbose_name="Номер телефона покупателя")
+    email = models.EmailField(max_length=255, verbose_name="Почта покупателя")
     construction_status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Статус строительства")
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Широта")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Долгота")

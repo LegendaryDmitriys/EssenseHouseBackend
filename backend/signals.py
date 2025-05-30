@@ -135,9 +135,13 @@ def notify_user_on_review_status_change(sender, instance, created, **kwargs):
         return
     old_status = _review_old_status.pop(instance.pk, None)
     if old_status != instance.status and instance.status == 'published':
-        if instance.name and instance.name != 'Аноним':
+        print("old_status:", old_status)
+        print("new_status:", instance.status)
+        print("email:", instance.email)
+        if instance.email:
             user = User.objects.filter(email=instance.email).first()
             if user:
+                print("user:", user)
                 send_notification_to_user(
                     user=user,
                     title="Ваш отзыв опубликован!",

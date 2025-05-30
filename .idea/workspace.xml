@@ -4,13 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="redesigned search by Reviews status, added validation in the serializer">
+    <list default="true" id="19063164-b6a2-4a97-ad19-58d510567c8b" name="Changes" comment="fix auth token">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/EssenseHouse/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/EssenseHouse/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mail_service/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/mail_service/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mail_service/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/mail_service/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mail_service/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/mail_service/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mail_service/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mail_service/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth_app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth_app/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth_app/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth_app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/auth_app/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/serializer.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/serializer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/signals.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/signals.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/media/user/reviews/Коммерческое_предложение.docx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/media/user/reviews/Коммерческое_предложение_2.docx" beforeDir="false" />
     </list>
@@ -70,23 +72,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Django Server.EssenseHouse.executor": "Run",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/Dmitry/Desktop/Backend/EssenseHouseBackend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Django Server.EssenseHouse.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitry/Desktop/Backend/EssenseHouseBackend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="EssenseHouse" type="Python.DjangoServer" factoryName="Django server">
       <module name="EssenseHouse" />
@@ -215,7 +217,19 @@
       <workItem from="1747088124885" duration="9000" />
       <workItem from="1747144072679" duration="864000" />
       <workItem from="1747156976720" duration="13000" />
-      <workItem from="1747242144895" duration="11361000" />
+      <workItem from="1747242144895" duration="11563000" />
+      <workItem from="1747294635366" duration="2918000" />
+      <workItem from="1747302372820" duration="356000" />
+      <workItem from="1747407957074" duration="8779000" />
+      <workItem from="1747501863339" duration="13000" />
+      <workItem from="1747565436954" duration="10318000" />
+      <workItem from="1747635924437" duration="4799000" />
+      <workItem from="1747985729526" duration="4059000" />
+      <workItem from="1748213988461" duration="4488000" />
+      <workItem from="1748220831599" duration="158000" />
+      <workItem from="1748452793269" duration="10772000" />
+      <workItem from="1748529149677" duration="8703000" />
+      <workItem from="1748559942273" duration="6453000" />
     </task>
     <task id="LOCAL-00001" summary="project initialization, database model development, CRUD">
       <option name="closed" value="true" />
@@ -385,7 +399,31 @@
       <option name="project" value="LOCAL" />
       <updated>1746387030483</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="implemented the logic for subscribing to Push notifications, as well as sending messages">
+      <option name="closed" value="true" />
+      <created>1747260100756</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1747260100756</updated>
+    </task>
+    <task id="LOCAL-00023" summary="The authorization logic has been redesigned, signals have been made for sending push notifications">
+      <option name="closed" value="true" />
+      <created>1748471691152</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1748471691152</updated>
+    </task>
+    <task id="LOCAL-00024" summary="fix auth token">
+      <option name="closed" value="true" />
+      <created>1748535059969</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1748535059969</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -423,6 +461,9 @@
     <MESSAGE value="fix bugs" />
     <MESSAGE value="redesigned the Blog model, serializer for creating a Home, fixes" />
     <MESSAGE value="redesigned search by Reviews status, added validation in the serializer" />
-    <option name="LAST_COMMIT_MESSAGE" value="redesigned search by Reviews status, added validation in the serializer" />
+    <MESSAGE value="implemented the logic for subscribing to Push notifications, as well as sending messages" />
+    <MESSAGE value="The authorization logic has been redesigned, signals have been made for sending push notifications" />
+    <MESSAGE value="fix auth token" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix auth token" />
   </component>
 </project>

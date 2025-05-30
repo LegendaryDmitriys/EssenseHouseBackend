@@ -224,7 +224,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ['id', 'name', 'email', 'review', 'date', 'rating', 'status', 'files', 'uploaded_files']
+        fields = ['id', 'first_name', 'last_name', 'review', 'date', 'rating', 'status', 'files', 'uploaded_files']
 
     def create(self, validated_data):
         uploaded_files = validated_data.pop('uploaded_files', [])
@@ -280,15 +280,19 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     house = serializers.PrimaryKeyRelatedField(queryset=House.objects.all(), required=True)
-    finishing_option = serializers.SerializerMethodField(read_only=True)
+    finishing_option = serializers.PrimaryKeyRelatedField(
+        queryset=FinishingOption.objects.all(), required=False, allow_null=True
+    )
 
     house_details = serializers.SerializerMethodField()
+    finishing_option_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = '__all__' 
         extra_kwargs = {
-            'name': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
             'phone': {'required': False},
             'construction_place': {'required': False},
             'message': {'required': False},
@@ -301,7 +305,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "title": obj.house.title,
         }
 
-    def get_finishing_option(self, obj):
+    def get_finishing_option_details(self, obj):
         if obj.finishing_option:
             return {
                 "id": obj.finishing_option.id,
@@ -372,9 +376,10 @@ class OrderSerializer(serializers.ModelSerializer):
             PurchasedHouse.objects.create(
                 house=instance.house,
                 purchase_date=timezone.now().date(),
-                buyer_name=instance.name,
-                buyer_phone=instance.phone,
-                buyer_email=instance.email,
+                first_name=instance.first_name,
+                last_name=instance.last_name,
+                phone_number=instance.phone,
+                email=instance.email,
                 construction_status='not_started',
                 latitude=instance.latitude,
                 longitude=instance.longitude,

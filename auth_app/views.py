@@ -7,6 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from auth_app.serializers import UserSerializer
 
+User = get_user_model()
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -18,7 +20,21 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
-class AdminRegisterView(APIView):
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=200)
+
+    def patch(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+
+class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -30,7 +46,7 @@ class AdminRegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AdminLoginView(APIView):
+class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -45,7 +61,6 @@ class AdminLoginView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-User = get_user_model()
 
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
