@@ -112,7 +112,7 @@ def notify_user_on_construction_status_change(sender, instance, created, **kwarg
         return
     old_status = _purchase_old_status.pop(instance.pk, None)
     if old_status != instance.construction_status:
-        user = User.objects.filter(email=instance.buyer_email).first()
+        user = User.objects.filter(email=instance.email).first()
         if user:
             send_notification_to_user(
                 user=user,

@@ -586,10 +586,7 @@ class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['DELETE', 'PATCH', 'PUT']:
             return [IsAuthenticated()]
         return [AllowAny()]
-
-
 class PurchaseHouseListView(generics.ListCreateAPIView):
-    queryset = PurchasedHouse.objects.all()
     serializer_class = PurchasedHouseSerializer
 
     def get_permissions(self):
@@ -597,37 +594,23 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
             return [IsAuthenticated()]
         return [AllowAny()]
 
-    def get(self, request, *args, **kwargs):
-        cache_key = "purchase_house_list"
-        cached_data = cache.get(cache_key)
-
-        if cached_data:
-            return Response(cached_data)
-
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
-
-        cache.set(cache_key, data, timeout=60 * 60)
-        return Response(data)
-
-    def perform_create(self, serializer):
-        response = super().perform_create(serializer)
-        cache.delete("purchase_house_list")
-        return response
-
     def get_queryset(self):
         construction_status = self.request.query_params.get('construction_status', None)
 
-        queryset = PurchasedHouse.objects.all().select_related('house')
-        queryset = queryset.prefetch_related(
-            'house__images', 'house__interior_images', 'house__facade_images',
-            'house__layout_images', 'house__category', 'house__construction_technology',
-            'house__documents', 'house__finishing_options'
+        queryset = PurchasedHouse.objects.select_related('house').prefetch_related(
+            'house__images',
+            'house__interior_images',
+            'house__facade_images',
+            'house__layout_images',
+            'house__category',
+            'house__construction_technology',
+            'house__documents',
+            'house__finishing_options'
         )
 
         if construction_status:
-            return queryset.filter(construction_status=construction_status)
+            queryset = queryset.filter(construction_status=construction_status)
+
         return queryset
 
 
@@ -973,8 +956,13 @@ class BlogListCreateView(generics.ListCreateAPIView):
         queryset = super().get_queryset()
 
         category = self.request.query_params.get('category')
+        status = self.request.query_params.get('status')
+
         if category:
             queryset = queryset.filter(category__name__iexact=category)
+
+        if status:
+            queryset = queryset.filter(status__iexact=status)
 
 
         return queryset

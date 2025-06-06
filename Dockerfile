@@ -1,13 +1,15 @@
-FROM python:3.10-slim
+# Dockerfile
 
-WORKDIR /app
+FROM python:3.12-slim
 
-COPY requirements.txt /app/
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /code
 
-COPY . /app/
+COPY requirements.txt /code/
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-EXPOSE 8000
+COPY . /code/
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "EssenseHouse.wsgi:application"]
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]

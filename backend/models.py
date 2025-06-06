@@ -41,7 +41,6 @@ class ConstructionTechnology(models.Model):
 class House(models.Model):
     BESTSELLER_CHOICES = [
         ('Акция', 'Акция'),
-        ('Новинка', 'Новинка'),
     ]
 
     PURPOSE_CHOICES = [
