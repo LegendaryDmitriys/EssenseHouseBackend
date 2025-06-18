@@ -43,6 +43,10 @@ VAPID_CLAIMS = {
 }
 # Application definition
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,9 +59,22 @@ INSTALLED_APPS = [
     'backend',
     'auth_app',
     'mail_service',
+    'support_chat',
+    'channels',
     # 'debug_toolbar',
     'django_filters'
 ]
+
+ASGI_APPLICATION = 'EssenseHouse.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("176.108.255.144", 6379)],
+        },
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
@@ -103,7 +120,6 @@ ROOT_URLCONF = 'EssenseHouse.urls'
 #     "http://192.168.0.103:5173",
 # ]
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 
 TEMPLATES = [
@@ -130,28 +146,13 @@ AUTH_USER_MODEL = 'auth_app.User'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("POSTGRES_DB"),
-        'USER': os.getenv("POSTGRES_USER"),
-        'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-        'HOST': 'db',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 600,
-        'OPTIONS': {
-                'client_encoding': 'UTF8',
-            },
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'essensehouse',
-#         'USER': 'postgres',
-#         'PASSWORD': 'admin',
-#         'HOST': 'localhost',
+#         'NAME': os.getenv("POSTGRES_DB"),
+#         'USER': os.getenv("POSTGRES_USER"),
+#         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
+#         'HOST': 'db',
 #         'PORT': '5432',
 #         'CONN_MAX_AGE': 600,
 #         'OPTIONS': {
@@ -160,6 +161,20 @@ DATABASES = {
 #     }
 # }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'essensehouse',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+                'client_encoding': 'UTF8',
+            },
+    }
+}
 
 
 # Password validation

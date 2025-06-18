@@ -62,10 +62,14 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Image
         fields = ['id', 'image']
 
+    def get_image(self, obj):
+        return obj.image.url if obj.image else None
 
 class HouseSerializer(serializers.ModelSerializer):
     images = ImageSerializer(many=True, required=False)
@@ -355,8 +359,14 @@ class OrderSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        user = self.context['request'].user if 'request' in self.context else None
+
         validated_data['latitude'] = getattr(self, 'latitude', None)
         validated_data['longitude'] = getattr(self, 'longitude', None)
+
+        if user and user.is_authenticated:
+            validated_data['user'] = user
+
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -368,23 +378,27 @@ class OrderSerializer(serializers.ModelSerializer):
                 "detail": "Невозможно подтвердить заказ без указания широты и долготы."
             })
 
-
         instance.latitude = validated_data.get('latitude', getattr(self, 'latitude', instance.latitude))
         instance.longitude = validated_data.get('longitude', getattr(self, 'longitude', instance.longitude))
 
         if previous_status != 'approved' and new_status == 'approved':
-            PurchasedHouse.objects.create(
-                house=instance.house,
-                purchase_date=timezone.now().date(),
-                first_name=instance.first_name,
-                last_name=instance.last_name,
-                phone_number=instance.phone,
-                email=instance.email,
-                construction_status='not_started',
-                latitude=instance.latitude,
-                longitude=instance.longitude,
-                address=instance.construction_place
-            )
+            try:
+                PurchasedHouse.objects.create(
+                    house=instance.house,
+                    purchase_date=timezone.now(),
+                    user=instance.user,
+                    first_name=instance.first_name,
+                    last_name=instance.last_name,
+                    phone_number=instance.phone,
+                    email=instance.email,
+                    construction_status='not_started',
+                    latitude=instance.latitude,
+                    longitude=instance.longitude,
+                    address=instance.construction_place
+                )
+            except Exception as e:
+                print(f"[PURCHASED] Ошибка при создании: {str(e)}")
+                raise
 
         instance = super().update(instance, validated_data)
         return instance
@@ -421,9 +435,6 @@ class UserQuestionHouseSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
 class UserQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserQuestion
@@ -439,6 +450,7 @@ class UserQuestionSerializer(serializers.ModelSerializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.message)
         return value
+
 
 
 class PurchasedHouseSerializer(serializers.ModelSerializer):
@@ -475,3 +487,10 @@ class BlogSerializer(serializers.ModelSerializer):
             setattr(instance, field, value)
         instance.save()
         return instance
+
+# Stats
+
+class ProjectStatsSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    active = serializers.IntegerField()
+    completed = serializers.IntegerField()

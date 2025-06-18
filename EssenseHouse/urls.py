@@ -12,7 +12,8 @@ from backend.views import HouseListView, HouseDetailView, ConstructionTechnology
     UserQuestionHouseListView, UserQuestionHouseDetailView, UserQuestionListView, UserQuestionDetailView, \
     HouseCategoryDetailByIdView, FilterOptionDetailView, CreateHouseAPIView, UpdateHouseAPIView, DeleteImageView, \
     export_orders_to_excel, export_purchased_houses, export_user_questions_and_houses, DeleteDocumentView, \
-    BlogListCreateView, BlogDetailView, BlogCategoryListView, BlogsByCategoryView, OrdersByEmailView
+    BlogListCreateView, BlogDetailView, BlogCategoryListView, BlogsByCategoryView, OrdersByEmailView, MyQuestionsView, \
+    MyOrdersView, DashboardStatsView
 
 urlpatterns = [
     path('houses/', HouseListView.as_view(), name='house_list'),
@@ -40,15 +41,18 @@ urlpatterns = [
 
     path('orders/', OrderListView.as_view(), name='order_list'),
     path('order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
-    path('orders/by-email/', OrdersByEmailView.as_view(), name='orders_by_email'),
+    path('orders/my-orders/', MyOrdersView.as_view(), name='my_orders'),
+
 
     path('user-questions/', UserQuestionListView.as_view(), name='user_question_list'),
     path('user-question/<int:pk>/', UserQuestionDetailView.as_view(), name='user_question_detail'),
     path('house-questions/', UserQuestionHouseListView.as_view(), name='user_question_house_list'),
     path('house-question/<int:pk>/', UserQuestionHouseDetailView.as_view(), name='user_question_house_detail'),
+    path('questions/my-questions/', MyQuestionsView.as_view(), name='my_questions'),
 
     path('auth/', include('auth_app.urls')),
     path('mail/', include('mail_service.urls')),
+    path('chat/', include('support_chat.urls')),
 
     path('houses/create', CreateHouseAPIView.as_view(), name='house_list-create'),
     path('houses/update/<int:house_id>/', UpdateHouseAPIView.as_view(), name='update_house'),
@@ -63,6 +67,9 @@ urlpatterns = [
     path('export_orders/', export_orders_to_excel, name='export_orders'),
     path('export_purchased_houses/', export_purchased_houses, name='export_purchased_houses'),
     path('export_user_questions_and_houses/', export_user_questions_and_houses, name='export_user_questions_and_houses'),
+
+    path('stats/dashboard/', DashboardStatsView.as_view(), name='dashboard_stats'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

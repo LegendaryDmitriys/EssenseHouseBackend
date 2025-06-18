@@ -2,7 +2,7 @@ import django_filters
 from django.http import JsonResponse, Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework import generics
+from rest_framework import generics, permissions, status
 
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -26,6 +26,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
+from .utils import get_period_dates, get_projects_data, get_budget_data
 
 
 def filter_houses(filters, category=None):
@@ -511,6 +512,9 @@ class OrderListView(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
+    def perform_create(self, serializer):
+        serializer.save()
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -548,14 +552,43 @@ class OrdersByEmailView(APIView):
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class MyOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response(
+                {"error": "Пользователь не авторизован"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        orders = Order.objects.filter(user=user)
+
+        if not orders.exists():
+            return Response(
+                {"message": "Заказов не найдено"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserQuestionHouseListView(generics.ListCreateAPIView):
     queryset = UserQuestionHouse.objects.all()
     serializer_class = UserQuestionHouseSerializer
+    permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+
+        if request.user.is_authenticated:
+            serializer.save(user=request.user)
+        else:
+            serializer.save()
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -572,11 +605,13 @@ class UserQuestionHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
 class UserQuestionListView(ListCreateAPIView):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
+    permission_classes = [AllowAny]
 
-    @method_decorator(cache_page(60 * 15))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
 
 class UserQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserQuestion.objects.all()
@@ -612,6 +647,29 @@ class PurchaseHouseListView(generics.ListCreateAPIView):
             queryset = queryset.filter(construction_status=construction_status)
 
         return queryset
+
+
+class MyQuestionsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if not user:
+            return Response({"error": "Пользователя не найден"}, status=400)
+
+        house_questions = UserQuestionHouse.objects.filter(user=user)
+        simple_questions = UserQuestion.objects.filter(user=request.user)
+
+        house_serializer = UserQuestionHouseSerializer(house_questions, many=True)
+        simple_serializer = UserQuestionSerializer(simple_questions, many=True)
+
+        return Response({
+            'simple_questions': simple_serializer.data,
+            'house_questions': house_serializer.data,
+        })
+
+
 
 
 class PurchaseHouseDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -997,3 +1055,20 @@ class BlogsByCategoryView(generics.ListAPIView):
     def get_queryset(self):
         category_id = self.kwargs['category_id']
         return Blog.objects.filter(category_id=category_id)
+
+## Stats
+
+class DashboardStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        period = request.query_params.get('period', '6m')
+        start_date, _ = get_period_dates(period)
+
+        projects_data = get_projects_data(start_date)
+        budget_data = get_budget_data(start_date)
+
+        return Response({
+            'projects': projects_data,
+            'budget': budget_data
+        })

@@ -5,6 +5,9 @@ from django.utils.text import slugify
 from django.db.models import Count
 from django.utils import timezone
 
+from auth_app.models import User
+
+
 class HouseCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     short_description = models.TextField(null=True, blank=True)
@@ -189,6 +192,7 @@ class Order(models.Model):
         ('approved', 'Одобрено'),
         ('rejected', 'Отклонено'),
     ]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Пользователь")
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
@@ -212,6 +216,7 @@ class UserQuestionHouse(models.Model):
         ('answered', 'Ответ предоставлен'),
         ('closed', 'Закрыт'),
     ]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Пользователь")
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
@@ -231,7 +236,7 @@ class UserQuestion(models.Model):
         ('answered', 'Ответ предоставлен'),
         ('closed', 'Закрыт'),
     ]
-
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Пользователь")
     first_name = models.CharField(max_length=255, verbose_name="Имя")
     last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, verbose_name="Телефон")
@@ -248,9 +253,9 @@ class PurchasedHouse(models.Model):
         ('completed', 'Построен'),
         ('not_started', 'Не начато'),
     ]
-
     house = models.ForeignKey(House, on_delete=models.CASCADE, verbose_name="Купленный дом",db_index=True)
-    purchase_date = models.DateField(verbose_name="Дата покупки")
+    purchase_date = models.DateTimeField(verbose_name="Дата покупки")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Пользователь")
     first_name = models.CharField(max_length=255, verbose_name="Имя покупателя")
     last_name = models.CharField(max_length=255, verbose_name="Фамилия покупателя")
     phone_number = models.CharField(max_length=20, verbose_name="Номер телефона покупателя")
@@ -259,7 +264,7 @@ class PurchasedHouse(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Широта")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, verbose_name="Долгота")
     address = models.CharField(max_length=255, verbose_name="Адрес строительства", null=True, blank=True)
-    completed_date = models.DateField(verbose_name="Дата завершения строительства", null=True, blank=True)
+    completed_date = models.DateTimeField(verbose_name="Дата завершения строительства", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.construction_status == 'completed' and not self.completed_date:

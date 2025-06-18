@@ -95,7 +95,7 @@ def notify_user_on_question_status_change(sender, instance, created, **kwargs):
                     user=user,
                     title="Ответ на ваш вопрос",
                     body=f"Мы обновили статус вашего вопроса по дому «{instance.house.title}» — теперь он: {instance.get_status_display()}. Подробности ждут вас в профиле!",
-                    link="/profile/questions"
+                    link="/profile"
                 )
 
 @receiver(pre_save, sender=PurchasedHouse)
@@ -118,7 +118,7 @@ def notify_user_on_construction_status_change(sender, instance, created, **kwarg
                 user=user,
                 title="Обновление статуса строительства дома",
                 body=f"Статус строительства дома «{instance.house.title}» изменился — теперь он: {instance.get_construction_status_display()}. Следите за прогрессом в вашем профиле!",
-                link="/profile/construction"
+                link="/profile"
             )
 
 @receiver(pre_save, sender=Review)
